@@ -1,0 +1,21 @@
+text	{findWhat:"\u0091"}	{changeTo:"\u2018"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft left single quotes and make them Unicode.
+text	{findWhat:"\u0092"}	{changeTo:"\u2019"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft right single quotes and make them Unicode.
+text	{findWhat:"\u0093"}	{changeTo:"\u201C"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft left double quotes and make them Unicode.
+text	{findWhat:"\u0094"}	{changeTo:"\u201D"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft right double quotes and make them Unicode.
+text	{findWhat:"\u0096"}	{changeTo:"\u2013"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft en-dashes and make them Unicode.
+text	{findWhat:"\u0097"}	{changeTo:"\u2014"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft em-dashes and make them Unicode.
+text	{findWhat:"\u23AF"}	{changeTo:"\u2014"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft em-dashes and make them Unicode.
+text	{findWhat:"\u00BE"}	{changeTo:"\u2014"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all Microsoft em-dashes and make them Unicode.
+text	{findWhat:"^s"}	{changeTo:" "}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all special weird spaces and make them regular spaces.
+text	{findWhat:"^S"}	{changeTo:" "}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all extra special weird spaces and make them regular spaces.
+grep	{findWhat:"^\t+"}	{changeTo:""}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Delete all tabs at the beginning of paragraphs.
+grep	{findWhat:"\t"}	{changeTo:" "}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Convert all remaining tabs to spaces.
+grep	{findWhat:"  +"}	{changeTo:" "}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double spaces and replace with single spaces.
+grep	{findWhat:"\n"}	{changeTo:"\r"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all soft returns and replace with hard returns.
+grep	{findWhat:"\r "}	{changeTo:"\r"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space And replace with single returns.
+grep	{findWhat:" \r"}	{changeTo:"\r"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all returns followed by a space and replace with single returns.
+grep	{findWhat:"\r\r+"}	{changeTo:"\r"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all double returns and replace with single returns.
+text	{findWhat:" - "}	{changeTo:"^_"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all space-dash-space and replace with an em dash.
+text	{findWhat:"--"}	{changeTo:"^_"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Find all dash-dash and replace with an em dash.
+
+

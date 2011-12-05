@@ -1,0 +1,1 @@
+﻿app.selection[0].composer = "Adobe Paragraph Composer";alert ("Bidirectional functionality has been removed from your text selection.  This is probably what you want, unless you were working on Philologos and it had Hebrew words in it, in which case you should probably press command Z.");

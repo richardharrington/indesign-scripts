@@ -1,0 +1,6 @@
+text	{findWhat:"^?", fontStyle:"Bold Oblique"}	{appliedCharacterStyle:"BOLD ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Bold Oblique" style to "BOLD ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Bold Italic"}	{appliedCharacterStyle:"BOLD ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Bold Italic" style to "BOLD ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Oblique"}	{appliedCharacterStyle:"ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Oblique" style to "ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Italic"}	{appliedCharacterStyle:"ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Italic" style to "ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Bold"}	{appliedCharacterStyle:"BOLD normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Bold" style to "BOLD normal" character style
+text	{findWhat:"^?"}	{appliedParagraphStyle:"shmooze body copy rag"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change to body copy throughout

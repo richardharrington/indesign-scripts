@@ -1,0 +1,5 @@
+text	{findWhat:"^?", fontStyle:"Bold Italic"}	{appliedCharacterStyle:"ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Bold Italic" style to "ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Italic"}	{appliedCharacterStyle:"ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Italic" style to "ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Bold Oblique"}	{appliedCharacterStyle:"ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Bold Oblique" style to "ITALIC normal" character style
+text	{findWhat:"^?", fontStyle:"Oblique"}	{appliedCharacterStyle:"ITALIC normal"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change "Oblique" style to "ITALIC normal" character style
+text	{findWhat:"^?"}	{appliedParagraphStyle:"In This Week's list"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change to In This Week's list throughout

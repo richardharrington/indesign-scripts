@@ -1,0 +1,128 @@
+// CONFIG SETTINGS
+
+var EDITORIAL_PAGE_TEMPLATE_PATH = "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/LAYOUTS - Indesign/Editorial Gannett template.indt";
+var FOLIO_DATE_PLACEHOLDER_TEXT = "Month XX, 2011";
+var ICML_FILES_FOLDER_PATH = "/Volumes/English/PRODUCTION FILES/CURRENT Incopy files and Indesign backups/FAKE ICML FILES TEST/";
+// var ICML_FILES_FOLDER_PATH = "/Volumes/English/PRODUCTION FILES/CURRENT Incopy files and Indesign backups/icml files";
+var THIS_WEEKS_ISSUE_FOLDER_PATH = "/Volumes/English/PRODUCTION FILES/CURRENT Incopy files and Indesign backups/FAKE CURRENT LAYOUTS TEST/";
+// var THIS_WEEKS_ISSUE_FOLDER_PATH = "/Volumes/English/PRODUCTION FILES/CURRENT LAYOUTS-network";
+var EDITORIAL_PAGE_FILE_NAME_ROOT = "Editorial";
+var ICML_FOLDER_SUFFIX = " icml";
+
+
+// CONSTANTS
+
+var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+
+// FUNCTIONS
+
+//Open a document without dialog boxes popping up.
+Application.prototype.openWithoutWarnings = function (myFile, myShowingWindow) {
+	if (arguments.length < 2) {
+		var myShowingWindow = true; // default
+	}
+  // Avoid random dialog alerts (missing fonts, picture links, etc.) when opening the file.  var savedInteractionLevel = this.scriptPreferences.userInteractionLevel;
+  this.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;  this.open(myFile, myShowingWindow);  // defaults to opening a window with the document.  // Restore user interaction  app.scriptPreferences.userInteractionLevel = savedInteractionLevel;}	
+// Figure out the cover date of the next issue, which is 
+// a week after the Friday which follows the publication day.
+Date.prototype.setNextIssueDate = function (publicationDay) {
+	if (arguments.length < 1) {
+		var publicationDay = 5; // defaults to Friday
+	}
+	var todaysDate = new Date();
+	var daysToAdd = ((publicationDay+7-todaysDate.getDay()) % 7) + 7;
+	this.setDate (todaysDate.getDate() + daysToAdd);
+}
+
+function add_leading_zeroes (myNum) {  // This version only works for one or two digit numbers  if (myNum < 10) {    return "0" + String (myNum);  }  return String (myNum);}	// MAIN BODY
+
+main();function main() {
+	  // Figure out the issue date.	var myIssueDate = new Date();
+	myIssueDate.setNextIssueDate();
+	
+  // Check to see if a file with this name already exists, and also
+  // if the user wants to create a new one.
+  // SHOULD ALSO CHECK IF THE EDITORIAL PAGE IS ACTUALLY ALREADY *OPEN*.
+  // BECAUSE AN ERROR WILL BE GENERATED IF IT IS, WITH THE SCRIPT IN ITS CURRENT FORM.
+  var myNewEditorialPageFile = new File ( THIS_WEEKS_ISSUE_FOLDER_PATH
+                                    + EDITORIAL_PAGE_FILE_NAME_ROOT
+                                    + "_"
+                                    + add_leading_zeroes (myIssueDate.getMonth()+1)
+                                    + add_leading_zeroes (myIssueDate.getDate())
+                                    + ".indd" );
+  if (!confirm ("You're about to create a new editorial page titled " + myNewEditorialPageFile.name 
+             + ". Do you want to do that?") )
+    exit();
+  if ((myNewEditorialPageFile.exists) 
+        && (!confirm ("Oh wait, a file with that name actually already exists. Do you want to overwrite it?")))
+    exit();
+
+	// Open a new editorial page from the template and change the folio.
+	app.openWithoutWarnings (EDITORIAL_PAGE_TEMPLATE_PATH);
+	myNewEditorialPage = app.activeDocument;
+	app.changeTextPreferences = NothingEnum.nothing;	app.findTextPreferences = NothingEnum.nothing;
+	app.findTextPreferences.findWhat = FOLIO_DATE_PLACEHOLDER_TEXT;
+	app.changeTextPreferences.changeTo = MONTHS[myIssueDate.getMonth()] + " " 
+	                                   + myIssueDate.getDate() + ", " 
+	                                   + myIssueDate.getFullYear();
+	myNewEditorialPage.changeText();
+	app.changeTextPreferences = NothingEnum.nothing;	app.findTextPreferences = NothingEnum.nothing;
+	
+  // Create the folder for the InCopy files if it doesn't already exist.
+  var myIcmlFolderName = add_leading_zeroes (myIssueDate.getMonth()+1) 
+                       + add_leading_zeroes (myIssueDate.getDate())
+                       + ICML_FOLDER_SUFFIX
+                       + "/";
+  var myIcmlFolder = new Folder (ICML_FILES_FOLDER_PATH + myIcmlFolderName);
+  if (!myIcmlFolder.exists) 
+    myIcmlFolder.create();  
+
+  // Export the InCopy files.
+  var myStory;
+  var myTimeStamp = add_leading_zeroes (myIssueDate.getHours()) 
+                  + add_leading_zeroes (myIssueDate.getMinutes());
+                  + add_leading_zeroes (myIssueDate.getSeconds());
+  var myIcmlFileNameRoot = myNewEditorialPageFile.name.slice (0,-5) + "_" + myTimeStamp;
+  var storyIndex = 1;
+  
+  for (var i=0; i<myNewEditorialPage.pages.length; i++) {
+  	
+  	
+  	
+  	
+  	myStory = myNewEditorialPage.stories[i];
+  	if (myStory.lockState == LockStateValues.NONE) {
+  		myStory.exportFile (ExportFormat.INCOPY_MARKUP, new File ( myIcmlFolder 
+  		                                                         + myIcmlFileNameRoot 
+  		                                                         + "_"
+  		                                                         + (i+1)
+  		                                                         + ".icml" ));
+  	}
+  }
+  
+  // Save the document. SHOULD PROBABLY CLOSE IT TOO. NO REASON NOT TO.
+	myNewEditorialPage.save (myNewEditorialPageFile);
+	
+	// Alert the authorities.
+	var mailScript = 'set recipientName to "Dan Friedman"\r '
+	               + 'set recipientAddress to "harrington.richard@gmail.com"\r'
+	               + 'set theSubject to "' + MONTHS[myIssueDate.getMonth()] + ' ' + myIssueDate.getDate() + ' Editorial page created"\r'  
+	               + 'set theContent to "The Editorial page for the ' 
+	                       + MONTHS[myIssueDate.getMonth()] + ' ' + myIssueDate.getDate() + ' issue ' 
+	                       + 'has now been generated and is in CURRENT LAYOUTS and ready for editing. '
+	                       + 'Contact Richard with any questions."\r'
+	               + 'tell application "Mail"\r'
+	               + '  set theMessage to make new outgoing message with properties {subject:theSubject, content:theContent, visible:true}\r'
+	               + '  tell theMessage\r'
+	               + '    make new to recipient with properties {name:recipientName, address:recipientAddress}\r'
+	               + '    send\r'
+	               + '  end tell\r'
+	               + 'end tell';
+  app.doScript (mailScript, ScriptLanguage.APPLESCRIPT_LANGUAGE);
+
+}
+
+
+
+	

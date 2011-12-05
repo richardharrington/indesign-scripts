@@ -1,0 +1,1 @@
+text	{findWhat:"^?"}	{fillColor:"C=88 M=11 Y=1 K=0"}	{includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false}	Change to blue throughout
