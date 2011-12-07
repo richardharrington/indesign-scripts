@@ -1,39 +1,77 @@
-function gotoLink(url){
-    url = url || "http://in-tools.com";
-    if(false) { //+app.version[0] > 6){
-        if(File.fs=="Macintosh"){
-            var body = 'tell application "Finder"\r ' +
-                       '  open location "'+url+'"\r ' +
-                       'end tell ';
-            app.doScript(body,ScriptLanguage.APPLESCRIPT_LANGUAGE);
-        } else {
-            var body =  'dim objShell\r ' +
-                        'set objShell = CreateObject("Shell.Application")\r ' +
-                        'str = "'+url+'"\r ' +
-                        'objShell.ShellExecute str, "", "", "open", 1 ';
-            app.doScript(body,ScriptLanguage.VISUAL_BASIC);
-        }
-    }
-    else {
-        var linkJumper = File(Folder.temp.absoluteURI+"/link.html");
-        linkJumper.open("w");
-        var linkBody = '<html><head><META HTTP-EQUIV=Refresh CONTENT="0; URL='+url+'"></head><body><p></p></body></html>'
-        linkJumper.write(linkBody);
-        linkJumper.close();
-        linkJumper.execute();
-    }
+// This script depends upon the user having previously run
+// the AddURLToStory script on a story. This script finds that
+// URL (via the extractLabel method) and opens a browser to that page.
+
+// This is useful for going to a page in a CMS that is associated with a story.
+
+function openInBrowser(/*str*/ url) {
+    
+    // function openInBrowser was adapted by Marc Autret
+    // from a script by Gerald Singelmann.
+
+    var isMac = (File.fs == "Macintosh"),
+        fName = 'tmp' + (+new Date()) + (isMac ? '.webloc' : '.url'),
+        fCode = isMac ?
+               ('<?xml version="1.0" encoding="UTF-8"?>\r'+
+               '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" '+
+               '"http://www.apple.com/DTDs/PropertyList-1.0.dtd">\r'+
+               '<plist version="1.0">\r'+
+               '<dict>\r'+
+                    '\t<key>URL</key>\r'+
+                    '\t<string>%url%</string>\r'+
+               '</dict>\r'+
+               '</plist>') :
+               
+               '[InternetShortcut]\rURL=%url%\r';
+
+    var f = new File(Folder.temp.absoluteURI + '/' + fName);
+    if(! f.open('w') ) return false;
+
+    f.write(fCode.replace('%url%',url));
+    f.close();
+    f.execute();
+    $.sleep(500);     // 500 ms timer
+    f.remove();
+    return true;
 }
- 
 
+function equalsIn( value, array ) {
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (value === array[i]) return true;
+    }
+    return false;
+}
 
-function error_exit (message) {  if (arguments.length > 0) alert (unescape(message));  exit();} 	
+function alertExit( message ) {
+    if (message) {
+        alert( unescape( message ));
+    }
+    exit();
+}
+
+if (app.selection.length === 0) {
+    alertExit( "Please select something and try again.");
+} else if (app.selection.length > 1) {
+    alertExit( 'Please select some text or a text frame (only one) and try again.');
+}
+
+var mySelection = app.selection[0];
+if (equalsIn( mySelection.constructor.name, 
+             ["Character", "Word", "TextStyleRange", "Line",
+              "Paragraph", "TextColumn", "Text",
+              "InsertionPoint", "TextFrame", "Story"])) {
+                  
+    var myStory = (mySelection.constructor.name === "Story") ? mySelection :
+                   mySelection.parentStory;
+                   
+	var myURI = myStory.extractLabel( "URI" );
+	if (myURI === "") {
+	    alertExit( "This story has not been linked to a webpage yet. " +
+	               "Run the script 'AddURLToStory' and then try again." );
+	}
+	openInBrowser ( myURI );
 	
-		var mySelection = app.selection[0];
-if (typeof mySelection == 'undefined') error_exit ('Please select something and try again.');switch (mySelection.constructor.name) {	case "Character":	case "Word":	case "TextStyleRange":	case "Line":	case "Paragraph":	case "TextColumn":	case "Text":	case "InsertionPoint" :	case "TextFrame" :
-	  var myStory = mySelection.parentStory;
-	  if (myStory.label == "") {
-	    error_exit ("This story has not been linked to a webpage in the CMS yet.  Run the script 'AddIDToStory' and then try again.");
-	  }
-	  gotoLink (myStory.label);
+} else {
+    alertExit( "Please select some text or a text frame and try again." );
 }
-	   
+
