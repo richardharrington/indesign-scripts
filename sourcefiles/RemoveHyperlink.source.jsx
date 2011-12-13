@@ -80,6 +80,7 @@ or it edits an existing one.
 	
 	var myHyperlink;
 	var myDest;
+	var myDestHidden;
 	var mySource;
 	var numLinks;
 	var myFoundHyperlink;
@@ -114,10 +115,16 @@ or it edits an existing one.
 		    	myFoundHyperlink = myFoundHyperlinks[i];
 		        mySource = myFoundHyperlink.source;
 		        myDest = myFoundHyperlink.destination;
+		        myDestHidden = myDest.hidden;
 		        
 		        myFoundHyperlink.remove();
 		        mySource.remove();
-		        myDest.remove();
+		        
+		        // If myDest was NOT hidden, then it was a "shared URL destination" and 
+		        // it needs to be removed. If it WAS hidden, then the removal of the
+		        // hyperlink will already have removed the destination and myDest.remove
+		        // would throw an error.
+		        if (!myDestHidden) myDest.remove();
 		    }
 		}
 	    
