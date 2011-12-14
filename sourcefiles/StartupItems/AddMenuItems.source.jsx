@@ -1,6 +1,8 @@
 #targetengine "MyStartupItems"
 
-#include "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/sourcefiles/util.jsx"
+#include "../util.jsx"
+
+// /Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts
 
 // This script installs menu items and is a generalization of a script
 // by Marc Autret, found at 
@@ -19,7 +21,7 @@
 	var ourMenuItems = [
 	
 		{
-			scriptPath: "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/ExportAllStories.jsx",
+			scriptFile: File (app.activeScript.parent.parent.parent + "/ExportAllStories.jsx"),
 		    title: "Export All Stories",
 		    menuID: "$ID/&File",
 		    separatorAbove: true,
@@ -29,7 +31,7 @@
 		}, 
 		
 		{
-			scriptPath: "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/ExportMarkdown.jsx",
+			scriptFile: File (app.activeScript.parent.parent.parent + "/ExportMarkdown.jsx"),
 		    title: "Export To Markdown",
 		    menuID: "$ID/&File",
 		    separatorAbove: true,
@@ -39,7 +41,7 @@
 		},
 		
 		{
-			scriptPath: "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/sourcefiles/AddOrEditHyperlink.source.jsx",
+			scriptFile: File (app.activeScript.parent.parent.parent + "/AddOrEditHyperlink.jsx"),
 		    title: "Add/Edit Hyperlink",
 		    menuID: "$ID/&Edit",
 		    separatorAbove: true,
@@ -88,7 +90,7 @@
 		},
 		      		
 		{
-			scriptPath: "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/sourcefiles/RemoveHyperlink.source.jsx",
+			scriptFile: File (app.activeScript.parent.parent.parent + "/RemoveHyperlink.jsx"),
 		    title: "Remove Hyperlink",
 		    menuID: "$ID/&Edit",
 		    separatorAbove: false,
@@ -130,7 +132,7 @@
 		 	event.target.enabled = myMenuItem.enabledTest();
 	    }
 	    result.onInvoke = function () {
-		    app.doScript (myMenuItem.scriptPath);
+		    app.doScript (myMenuItem.scriptFile);
 	    }
 	    return result;
     }
