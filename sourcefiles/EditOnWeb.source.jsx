@@ -12,17 +12,17 @@ function openInBrowser(/*str*/ url) {
     var isMac = (File.fs == "Macintosh"),
         fName = 'tmp' + (+new Date()) + (isMac ? '.webloc' : '.url'),
         fCode = isMac ?
-               ('<?xml version="1.0" encoding="UTF-8"?>\r'+
-               '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" '+
-               '"http://www.apple.com/DTDs/PropertyList-1.0.dtd">\r'+
-               '<plist version="1.0">\r'+
-               '<dict>\r'+
-                    '\t<key>URL</key>\r'+
-                    '\t<string>%url%</string>\r'+
-               '</dict>\r'+
-               '</plist>') :
+            ('<?xml version="1.0" encoding="UTF-8"?>\r'+
+            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" '+
+            '"http://www.apple.com/DTDs/PropertyList-1.0.dtd">\r'+
+            '<plist version="1.0">\r'+
+            '<dict>\r'+
+                '\t<key>URL</key>\r'+
+                '\t<string>%url%</string>\r'+
+            '</dict>\r'+
+            '</plist>') :
                
-               '[InternetShortcut]\rURL=%url%\r';
+            '[InternetShortcut]\rURL=%url%\r';
 
     var f = new File(Folder.temp.absoluteURI + '/' + fName);
     if(! f.open('w') ) return false;
@@ -64,13 +64,13 @@ if (equalsIn( mySelection.constructor.name,
     var myStory = (mySelection.constructor.name === "Story") ? mySelection :
                    mySelection.parentStory;
                    
-	var myURI = myStory.extractLabel( "URI" );
-	if (myURI === "") {
-	    alertExit( "This story has not been linked to a webpage yet. " +
-	               "Run the script 'AddURLToStory' and then try again." );
-	}
-	openInBrowser ( myURI );
-	
+    var myURI = myStory.extractLabel( "URI" );
+    if (myURI === "") {
+        alertExit( "This story has not been linked to a webpage yet. " +
+                   "Run the script 'AddURLToStory' and then try again." );
+    }
+    openInBrowser ( myURI );
+    
 } else {
     alertExit( "Please select some text or a text frame and try again." );
 }

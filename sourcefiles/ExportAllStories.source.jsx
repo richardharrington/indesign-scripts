@@ -50,7 +50,10 @@ for (st=0; st<myStoryArray.length; st++) {
 }
 
 
-function error_exit (message) {    if (arguments.length > 0) alert (unescape(message));    exit();} 
+function error_exit (message) {
+  if (arguments.length > 0) alert (unescape(message));
+  exit();
+} 
 
 // -------------------------------------------
 
