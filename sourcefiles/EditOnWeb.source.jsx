@@ -4,37 +4,6 @@
 
 // This is useful for going to a page in a CMS that is associated with a story.
 
-function openInBrowser(/*str*/ url) {
-    
-    // function openInBrowser was adapted by Marc Autret
-    // from a script by Gerald Singelmann.
-
-    var isMac = (File.fs == "Macintosh"),
-        fName = 'tmp' + (+new Date()) + (isMac ? '.webloc' : '.url'),
-        fCode = isMac ?
-            ('<?xml version="1.0" encoding="UTF-8"?>\r'+
-            '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" '+
-            '"http://www.apple.com/DTDs/PropertyList-1.0.dtd">\r'+
-            '<plist version="1.0">\r'+
-            '<dict>\r'+
-                '\t<key>URL</key>\r'+
-                '\t<string>%url%</string>\r'+
-            '</dict>\r'+
-            '</plist>') :
-               
-            '[InternetShortcut]\rURL=%url%\r';
-
-    var f = new File(Folder.temp.absoluteURI + '/' + fName);
-    if(! f.open('w') ) return false;
-
-    f.write(fCode.replace('%url%',url));
-    f.close();
-    f.execute();
-    $.sleep(500);     // 500 ms timer
-    f.remove();
-    return true;
-}
-
 function equalsIn( value, array ) {
     for (var i = 0, len = array.length; i < len; i++) {
         if (value === array[i]) return true;
@@ -69,7 +38,9 @@ if (equalsIn( mySelection.constructor.name,
         alertExit( "This story has not been linked to a webpage yet. " +
                    "Run the script 'AddURLToStory' and then try again." );
     }
-    openInBrowser ( myURI );
+    var tempDest = app.documents[0].hyperlinkURLDestinations.add( myURI );
+    tempDest.showDestination();
+    tempDest.remove();
     
 } else {
     alertExit( "Please select some text or a text frame and try again." );
