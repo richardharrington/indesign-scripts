@@ -58,7 +58,7 @@ Document.prototype.unlinkStories = function( doc ) {
 
 // First make sure there are no InDesign files open (easier that way.)
 if (app.documents.length > 0) {
-    alert("Please close all open documents and start again.");
+    alert("Please close all documents and start again.");
     exit();
 }
     
