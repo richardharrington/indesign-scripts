@@ -40,8 +40,11 @@ Document.prototype.unlinkStories = function( doc ) {
         if (story.lockState === LockStateValues.CHECKED_OUT_STORY || 
             story.lockState === LockStateValues.LOCKED_STORY) {
                 
-                if (!confirm( "The story beginning with\n" + story.contents.slice( 0, 20 ) + 
-                              "\n\n" + "is not checked in. Do you want to unlink it anyway?")) {
+                if (!confirm( "The story beginning with the text\n\n" + story.contents.slice( 0, 20 ) + "\n\n" +
+                              "on page " + story.textContainers[0].parentPage.name + "\n\n" + 
+                              "of the document " + story.parent.name + "\n\n" + 
+                              "is not checked in. Do you want to unlink it anyway? " +
+                              "This will delete any changes that have been made by whoever has it checked out.")) {
                     return;
              }
         }
@@ -52,6 +55,12 @@ Document.prototype.unlinkStories = function( doc ) {
 }
 
 // ------------------------------------------------------------------------------------
+
+// First make sure there are no InDesign files open (easier that way.)
+if (app.documents.length > 0) {
+    alert("Please close all open documents and start again.");
+    exit();
+}
     
 // Get the folder where all the InDesign files are supposed to be.
 var myFolder = Folder.selectDialog("Please select a folder containing all the InDesign files whose stories you want to unlink.");
@@ -73,4 +82,6 @@ Util.forEach( docs, function( doc ) {
     doc.unlinkStories();
     doc.close( SaveOptions.YES );
 });
+
+alert( "Finished unlinking stories" );
 
