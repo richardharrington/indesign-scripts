@@ -4,6 +4,9 @@ var COPYFIT_TEXT_FILE_PATH = "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/CO
 
 var cut = function( story, count ) {
     story.words.itemByRange( count, -1).remove();
+    while (story.characters[-1].contents === ' ') {
+        story.characters[-1].remove();
+    }
 };
 
 if (app.documents.length === 0 ||
@@ -21,6 +24,6 @@ if (wordCount === null) {
 }
 
 var sel = app.selection[0];
+var story = sel.parentStory;
 sel.place( COPYFIT_TEXT_FILE_PATH );
 cut( sel.parentStory, parseInt( wordCount ));
-
