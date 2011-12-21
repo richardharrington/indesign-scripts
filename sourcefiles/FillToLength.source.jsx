@@ -4,7 +4,7 @@ var COPYFIT_TEXT_FILE_PATH = "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/CO
 
 var cut = function( story, count ) {
     story.words.itemByRange( count, -1).remove();
-    while (story.characters[-1].contents === ' ') {
+    while (story.characters[-1].contents === ' ' || story.characters[-1].contents === '\r') {
         story.characters[-1].remove();
     }
 };
