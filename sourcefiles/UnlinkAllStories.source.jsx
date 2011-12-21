@@ -10,13 +10,6 @@
    
 */
 
-// THINGS TO ADD AT WORK ON MONDAY 12/19/2011:
-// 1. AN ALERT AT THE END TELLING YOU IT'S SUCCEEDED
-// 2. A THING AT THE BEGINNING PREVENTING THE SCRIPT FROM
-//    RUNNING IF THERE ARE ANY DOCUMENTS OPEN
-// 3. A BETTER WAY OF DETERMINING IF A DOCUMENT IS AN INDESIGN DOCUMENT.
-
-
 #include util.jsx
 
 var Util = FORWARD.Util;
@@ -28,14 +21,16 @@ Application.prototype.openWithoutWarnings = function (myFile, myShowingWindow) {
     // Avoid random dialog alerts (missing fonts, picture links, etc.) when opening the file(s).
     this.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
   
+    // This line may return an array or a single file
     var doc = this.open(myFile, myShowingWindow);  // defaults to opening a window with the document.
   
     // Restore user interaction
     app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
     return doc;
-}
+};
 
 Document.prototype.unlinkStories = function( doc ) {
+    var unlinkedSomeStories = false;
     Util.forEach( this.stories, function( story ) {
         if (story.lockState === LockStateValues.CHECKED_OUT_STORY || 
             story.lockState === LockStateValues.LOCKED_STORY) {
@@ -50,9 +45,23 @@ Document.prototype.unlinkStories = function( doc ) {
         }
         if (story.itemLink && story.itemLink.isValid) {
             story.itemLink.unlink();
+            unlinkedSomeStories = true;
         }
-    })
-}
+    });
+    return unlinkedSomeStories;
+};
+
+var report = function( message, fileArray ) {
+    var reportArray = [];
+    if (fileArray.length > 0) {
+        reportArray.push( message + "\n" );
+        Util.forEach( fileArray, function( file ) {
+            reportArray.push( unescape( file.name ));
+        });
+        reportArray.push( "\n" );
+    }
+    return reportArray;
+};
 
 // ------------------------------------------------------------------------------------
 
@@ -63,25 +72,46 @@ if (app.documents.length > 0) {
 }
     
 // Get the folder where all the InDesign files are supposed to be.
-var myFolder = Folder.selectDialog("Please select a folder containing all the InDesign files whose stories you want to unlink.");
+var myFolder = Folder.selectDialog("Please select a folder containing all the " + 
+                                   "InDesign files whose stories you want to unlink.");
 if (myFolder == null) 
     exit ();
     
 // Get the list of files in the folder.
-var myFileArray = myFolder.getFiles("*");
+var allFiles = myFolder.getFiles("*");
+var ignoredFiles = [];
+var examinedFiles = [];
+var changedFiles = [];
+var unchangedFiles = [];
 
-for (i = myFileArray.length - 1; i >= 0; i--) {
-    if (myFileArray[i].creator != "InDn" || myFileArray[i].name.slice(-5) == ".idlk") {
-        myFileArray.splice( i, 1 );
+var changedDocs = [];
+var unchangedDocs = [];
+
+for (i = allFiles.length - 1; i >= 0; i--) {
+    if (allFiles[i].creator === "InDn" && allFiles[i].name.slice(-5) === ".indd") {
+        examinedFiles.push( allFiles[i] );
+    } else {
+        ignoredFiles.push( allFiles[i] );
     }
 }
         
 // Now open all the documents and kill the InCopy links.
-var docs = app.openWithoutWarnings( myFileArray );
-Util.forEach( docs, function( doc ) {
-    doc.unlinkStories();
-    doc.close( SaveOptions.YES );
+var docs = app.openWithoutWarnings( examinedFiles );
+Util.forEach( docs, function( doc, i ) {
+    if (doc.unlinkStories()) {
+        changedFiles.push( examinedFiles[i] );
+        doc.close( SaveOptions.YES );
+    } else {
+        unchangedFiles.push( examinedFiles[i] );
+        doc.close( SaveOptions.NO );
+    }
 });
 
-alert( "Finished unlinking stories" );
+var myAlertText = ["Finished unlinking.\n\n"];
 
+myAlertText = myAlertText.concat( report( "Stories were unlinked in the following files:", changedFiles ));
+myAlertText = myAlertText.concat( report( "The following files were examined but either they had no linked " +
+                                          "stories or you didn't want to unlink any of their stories:", unchangedFiles ));
+myAlertText = myAlertText.concat( report( "The following files were ignored:", ignoredFiles ));
+
+alert( myAlertText.join( "\n" ));
