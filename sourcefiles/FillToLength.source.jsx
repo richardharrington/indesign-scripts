@@ -1,6 +1,6 @@
 // CONFIG
 
-var COPYFIT_TEXT_FILE_PATH = "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/COPYFIT diff lengths longer/2000 copyfit";
+var COPYFIT_TEXT_FILE_PATH = "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/COPYFIT diff lengths longer/8000 copyfit";
 
 var cut = function( story, count ) {
     story.words.itemByRange( count, -1).remove();
