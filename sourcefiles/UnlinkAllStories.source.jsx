@@ -12,7 +12,7 @@
 
 #include util.jsx
 
-var Util = FORWARD.Util;
+var util = FORWARD.Util;
 
 Application.prototype.openWithoutWarnings = function (myFile, myShowingWindow) {
     if (arguments.length < 2) {
@@ -31,7 +31,7 @@ Application.prototype.openWithoutWarnings = function (myFile, myShowingWindow) {
 
 Document.prototype.unlinkStories = function( doc ) {
     var unlinkedSomeStories = false;
-    Util.forEach( this.stories, function( story ) {
+    util.forEach( this.stories, function( story ) {
         if (story.lockState === LockStateValues.CHECKED_OUT_STORY || 
             story.lockState === LockStateValues.LOCKED_STORY) {
                 
@@ -51,16 +51,26 @@ Document.prototype.unlinkStories = function( doc ) {
     return unlinkedSomeStories;
 };
 
-var report = function( message, fileArray ) {
+// The following function can take either files or documents, because
+// they both contain "name" properties.
+
+var report = function( message, array ) {
     var reportArray = [];
-    if (fileArray.length > 0) {
+    if (array.length > 0) {
         reportArray.push( message + "\n" );
-        Util.forEach( fileArray, function( file ) {
-            reportArray.push( unescape( file.name ));
+        util.forEach( array, function( item ) {
+            reportArray.push( unescape( item.name ));
         });
         reportArray.push( "\n" );
     }
     return reportArray;
+};
+
+var closeDocs = function( docs, saveOption ) {
+    var saveOption = saveOption || SaveOptions.ASK;
+    util.forEach( docs, function( doc ) {
+        doc.close( saveOption );
+    });
 };
 
 // ------------------------------------------------------------------------------------
@@ -81,37 +91,60 @@ if (myFolder == null)
 var allFiles = myFolder.getFiles("*");
 var ignoredFiles = [];
 var examinedFiles = [];
-var changedFiles = [];
-var unchangedFiles = [];
 
+var examinedDocs;
 var changedDocs = [];
 var unchangedDocs = [];
 
-for (i = allFiles.length - 1; i >= 0; i--) {
-    if (allFiles[i].creator === "InDn" && allFiles[i].name.slice(-5) === ".indd") {
-        examinedFiles.push( allFiles[i] );
+util.forEach( allFiles, function( file ) {
+    if (file.creator === "InDn" && file.name.slice(-5) === ".indd") {
+        examinedFiles.push( file );
     } else {
-        ignoredFiles.push( allFiles[i] );
+        ignoredFiles.push( file );
     }
-}
+});
         
-// Now open all the documents and kill the InCopy links.
-var docs = app.openWithoutWarnings( examinedFiles );
-Util.forEach( docs, function( doc, i ) {
+// Open all the documents. 
+
+try {
+    examinedDocs = app.openWithoutWarnings( examinedFiles );
+} catch (e) {
+    alert( "There's been an error opening the files: " + e + "\n\n"+
+           "All documents will be closed now without saving.");
+    closeAllDocs( SaveOptions.NO );
+    exit();
+}
+
+// Kill all the inCopy links.
+
+util.forEach( examinedDocs, function( doc ) {
     if (doc.unlinkStories()) {
-        changedFiles.push( examinedFiles[i] );
-        doc.close( SaveOptions.YES );
+        changedDocs.push( doc );
     } else {
-        unchangedFiles.push( examinedFiles[i] );
-        doc.close( SaveOptions.NO );
+        unchangedDocs.push( doc );
     }
 });
 
-var myAlertText = ["Finished unlinking.\n\n"];
+// Prepare the report and close the files.
 
-myAlertText = myAlertText.concat( report( "Stories were unlinked in the following files:", changedFiles ));
-myAlertText = myAlertText.concat( report( "The following files were examined but either they had no linked " +
-                                          "stories or you didn't want to unlink any of their stories:", unchangedFiles ));
-myAlertText = myAlertText.concat( report( "The following files were ignored:", ignoredFiles ));
+try {
+    var myAlertText = ["Finished unlinking.\n\n"];
+
+    myAlertText = myAlertText.concat( report( "Stories were unlinked in the following files:", changedDocs ));
+    myAlertText = myAlertText.concat( report( "The following files were examined but either they had no linked " +
+                                              "stories or you didn't want to unlink any of their stories:", unchangedDocs ));
+    myAlertText = myAlertText.concat( report( "The following files were ignored:", ignoredFiles ));
+    
+    closeDocs( unchangedDocs, SaveOptions.NO );
+    closeDocs( changedDocs, SaveOptions.YES );
+} catch (e) {
+    alert( "There's been an error closing the files: " + e + "\n\n"+
+           "All documents will be closed now without saving.");
+    closeDocs( app.documents, SaveOptions.NO );
+    exit();
+}
+
+// Final report to user.
+
 
 alert( myAlertText.join( "\n" ));
