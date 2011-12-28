@@ -133,7 +133,7 @@ try {
     myAlertText = myAlertText.concat( report( "Stories were unlinked in the following files:", changedDocs ));
     myAlertText = myAlertText.concat( report( "The following files were examined but either they had no linked " +
                                               "stories or you didn't want to unlink any of their stories:", unchangedDocs ));
-    myAlertText = myAlertText.concat( report( "The following files were ignored:", ignoredFiles ));
+    myAlertText = myAlertText.concat( report( "The following files and folders were ignored:", ignoredFiles ));
     
     closeDocs( unchangedDocs, SaveOptions.NO );
     closeDocs( changedDocs, SaveOptions.YES );
