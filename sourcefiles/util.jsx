@@ -202,16 +202,18 @@ if (!FORWARD.Util) {
             var foundLinks = [];
             for (var linkIndex = doc.hyperlinks.length - 1; linkIndex >= 0; linkIndex--) {
                 var link = doc.hyperlinks[linkIndex];
-                var linkText = link.source.sourceText;
-            
-                // If linkText is in the same story as textObj, 
-                // and linkText is neither entirely before 
-                // textObj nor entirely after it, then...
-            
-                if ((linkText.parentStory == textObjParentStory)
-                            && ( ! ((linkText.index + linkText.length <= textObj.index) 
-                            || (linkText.index >= textObj.index + textObj.length))) ) {
-                    foundLinks.push(link);
+                if (link.source && link.source.sourceText) {
+                    var linkText = link.source.sourceText;
+
+                    // If linkText is in the same story as textObj, 
+                    // and linkText is neither entirely before 
+                    // textObj nor entirely after it, then...
+
+                    if ((linkText.parentStory == textObjParentStory)
+                                && ( ! ((linkText.index + linkText.length <= textObj.index) 
+                                || (linkText.index >= textObj.index + textObj.length))) ) {
+                        foundLinks.push(link);
+                    }
                 }
             }
             return foundLinks;
