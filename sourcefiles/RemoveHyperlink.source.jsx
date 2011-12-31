@@ -6,15 +6,9 @@ or it edits an existing one.
 
 */
 
-
 #include util.jsx
 
 ;
-
-
-
-
-
 
 (function() {
 

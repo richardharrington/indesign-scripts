@@ -14,7 +14,7 @@ or it edits an existing one.
     
     // namespace abbreviation
     
-    var Util = FORWARD.Util;
+    var util = FORWARD.Util;
 
     var DEFAULT_HYPERLINK_PROPERTIES = {
         borderColor: [183, 27, 23],  // Burgundy, roughly.
@@ -26,10 +26,10 @@ or it edits an existing one.
     var getTextSelection = function() {
         
         if (app.documents.length == 0) {
-            Util.error_exit("No documents are open.  Please open a document and try again.");
+            util.error_exit("No documents are open.  Please open a document and try again.");
         }
         if (app.selection.length == 0) {
-            Util.error_exit("Please select something and try again.");
+            util.error_exit("Please select something and try again.");
         }
         
         var myObject;
@@ -53,24 +53,24 @@ or it edits an existing one.
             break;
             
             case "TextFrame":
-            Util.error_exit ("Please select some text (not a whole text frame) and try again.");
+            util.error_exit ("Please select some text (not a whole text frame) and try again.");
             break;
             
             case "Story":
-            Util.error_exit ("Please select some text (not a whole story) and try again.");
+            util.error_exit ("Please select some text (not a whole story) and try again.");
             break;
             
             default:
-            Util.error_exit("Please select some text and try again.");
+            util.error_exit("Please select some text and try again.");
             if (!myObject.isValid) {
-                Util.error_exit( "There's been an error of indeterminate nature.  " + 
+                util.error_exit( "There's been an error of indeterminate nature.  " + 
                                  "Probably best to blame the programmer." );
             }
         }
     
         if (myObject.parentStory.lockState == LockStateValues.CHECKED_IN_STORY || 
                 myObject.parentStory.lockState == LockStateValues.LOCKED_STORY) {
-            Util.error_exit ("Please check out the story you're trying to place text into, and try again.");
+            util.error_exit ("Please check out the story you're trying to place text into, and try again.");
         }
                 
         return myObject;
@@ -135,14 +135,14 @@ or it edits an existing one.
     // so we don't have to test for that.
     
     var myDoc = mySel.parentStory.parent;
-    var myFoundHyperlinks = Util.findHyperlinks (mySel);
+    var myFoundHyperlinks = util.findHyperlinks (mySel);
     
     // Check to see if there are already any hyperlinks in the selection.
     
     if (myFoundHyperlinks.length > 0) {
         
         if (myFoundHyperlinks.length > 1) {
-            Util.error_exit ("The text you've selected contains more than one hyperlink. " + 
+            util.error_exit ("The text you've selected contains more than one hyperlink. " + 
                              "Please select some text with one hyperlink, or no hyperlinks, and try again.");
         }
         
@@ -157,7 +157,7 @@ or it edits an existing one.
         // be an insertion point:
         
         if (mySel.constructor.name == "InsertionPoint") {
-            Util.error_exit("Please select some text and try again.");
+            util.error_exit("Please select some text and try again.");
         }
     }   
     

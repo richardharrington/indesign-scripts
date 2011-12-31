@@ -3,25 +3,26 @@
 // Some day I'm going to figure out if we can do conditional 
 // module-loading in InDesign.
 
+// This module interface will be just one function, as opposed to an object with different
+// properties referring to various functions.
+
 ;
 
 var FORWARD = FORWARD || {};
 
 if (!FORWARD.markdownToIndesign) {
     
-    FORWARD.markdownToIndesign = {};
-    
-    (function() {
-        
-        var util = FORWARD.Util;
+    var util = FORWARD.Util;
 
+    FORWARD.markdownToIndesign = (function() {
+        
         // The function markdownToIndesign() is given an object containing a block
         // of text, and it finds all the hyperlinks inside the text
         // that are in markdown format and converts them to 
         // InDesign Hyperlink format (i.e., it removes each URL from
         // the text itself and puts it into an InDesign Hyperlink).
         
-        util.markdownToIndesign = function( hyperlinkProperties, /*bool*/ killRedundantIndesignHyperlinks, killAllIndesignHyperlinks ) {
+        markdownToIndesign = function( hyperlinkProperties, /*bool*/ killRedundantIndesignHyperlinks, killAllIndesignHyperlinks ) {
 
             // Set defaults for parameters
                 
@@ -30,69 +31,73 @@ if (!FORWARD.markdownToIndesign) {
             if (arguments.length < 2) 
                 var killRedundantIndesignHyperlinks = true;
                   
-                // Check for the existence of the "ITALIC normal" character style,
-                // to support our quick and dirty fix to process
-                // Markdown italics in the case of Word files. 
+            // Check for the existence of the "ITALIC normal" character style,
+            // to support our quick and dirty fix to process
+            // Markdown italics in the case of Word files. 
+            
+            var myItalicCharacterStyleName = "ITALIC normal";
+            var myDoc;
+            switch (this.constructor.name) {
+                case "Document" :
+                myDoc = this;
+                break;
                 
-                var myItalicCharacterStyleName = "ITALIC normal";
-                var myDoc;
-                switch (this.constructor.name) {
-                    case "Document" :
-                    myDoc = this;
-                    break;
-                    
-                    case "Story" :
-                    myDoc = this.parent;
-                    break;
-                    
-                    default:
-                    $.writeln (this); // debugging
-                    myDoc = this.parentStory.parent;
-                    
-                }
-                if (myDoc.characterStyles.item (myItalicCharacterStyleName) == null) {
-                    myDoc.characterStyles.add ({name: myItalicCharacterStyleName, appliedFont: "ITC Slimbach", fontStyle: "Book Italic" });
-                }
+                case "Story" :
+                myDoc = this.parent;
+                break;
                 
-                // Now for the main part of this markdownToIndesign function.
+                default:
+                $.writeln (this); // debugging
+                myDoc = this.parentStory.parent;
                 
-                var escapedChars = {
-                
+            }
+            if (myDoc.characterStyles.item (myItalicCharacterStyleName) == null) {
+                myDoc.characterStyles.add ({name: myItalicCharacterStyleName, appliedFont: "ITC Slimbach", fontStyle: "Book Italic" });
+            }
+            
+            // Now for the main part of this markdownToIndesign function.
+            
+            // escapedChars is an object that provides objects with find/change pairs for changeGrep.
+            // It is designed so that as we add functionality, and more kinds of characters that we 
+            // want to escape out before running the main part of this script, we can just add them here.
+            
+            var escapedChars = {
+            
                 // The reason pairs is an array rather than an object
                 // with named properties like "backslash", etc., is that 
                 // the order of elements is very important.  The first
                 // one has to be processed first.
-                
+            
                 // The placeholders are chosen arbitrarily from a character
                 // set that we will never use. From the Unicode pages:
-                
+            
                 //   "The Phags-pa script was designed to reflect the sounds of Mongolian, 
                 //    and was used for writing Mongolian, Chinese and other languages 
                 //    during the Yuan dynasty (1271–1368) of Mongolia. It is still used 
                 //    occasionally as a decorative script for writing Tibetan."
-                
+            
                 // The letters below spell "Free Tibet" in Tibetan.
-                
+            
                 pairs : [
                     {baseChar: "\\", placeholder: "\uA84E"},
                     {baseChar: "]", placeholder: "\uA861"},
                     {baseChar: ")", placeholder: "\uA84A"},
                     {baseChar: "*", placeholder: "\uA858"} 
-                  
+              
                     // others in this arbitray series, if needed in the future:
                     // \uA843, \uA850, \uA84B
-                  
+              
                 ],
                 getHidingPairs: function () {
                     var arr = [];
                     for (var i=0; i < this.pairs.length; i++) {
                         arr[i] = {find: "\\\\\\" + this.pairs[i].baseChar, change: this.pairs[i].placeholder};
                     }
-                  
+              
                     // Support for other markdown codes
                     // will be added as needed, but in the
                     // meantime, delete all single backslashes:
-                  
+              
                     arr[i] = {find: "\\\\", change: ""};
                     return arr;
                 },
@@ -103,7 +108,7 @@ if (!FORWARD.markdownToIndesign) {
                     }
                     return arr;
                 }
-            }    
+            }; 
             
             var myRegexp;
             var myHyperlink;
@@ -168,8 +173,6 @@ if (!FORWARD.markdownToIndesign) {
                         }
                     }
                 }
-                
-              
               
                 // This "try" statement will fail and be ignored
                 // if the text in question is already part of a hyperlink.
@@ -222,24 +225,25 @@ if (!FORWARD.markdownToIndesign) {
               
             app.changeGrepPreferences = NothingEnum.nothing;
             app.findGrepPreferences = NothingEnum.nothing;
-        };
+        };    
         
-        util.addMethodToPrototypes( util.markdownToIndesign, "markdownToIndesign", 
-            Character,
-            Word,
-            TextStyleRange,
-            Line,
-            Paragraph,
-            TextColumn,
-            Text,
-            Cell,
-            Column,
-            Row,
-            Table,
-            Story,
-            TextFrame,
-            XMLElement,
-            Document );
-    
+        return markdownToIndesign;
     })();
-}
+    
+    util.addMethodToPrototypes( FORWARD.markdownToIndesign, "markdownToIndesign", 
+        Character,
+        Word,
+        TextStyleRange,
+        Line,
+        Paragraph,
+        TextColumn,
+        Text,
+        Cell,
+        Column,
+        Row,
+        Table,
+        Story,
+        TextFrame,
+        XMLElement,
+        Document );  
+};
