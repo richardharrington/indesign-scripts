@@ -1,6 +1,6 @@
 # Forward Indesign Tools
 
-This is a collection of tools for use with Adobe InDesign and Adobe InCopy, mostly written by Richard Harrington at the Forward Newspaper in New York.
+This is a collection of tools for use with Adobe InDesign and Adobe InCopy, mostly written by Richard Harrington (me) at the Forward Newspaper in New York.
 
 The scripts at the top level of the directory are wrappers, and they all contain the exact same code. The code checks the name of the file containing itself, and then calls a script starting with the identical name -- except that it ends with .source.jsx instead of .jsx -- in the sourcefiles folder. (There is no need to encapsulate the source scripts in anonymous function calls, because the wrapper scripts take care of that.)
 
