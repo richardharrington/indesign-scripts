@@ -53,7 +53,7 @@ Blah di blah
 
 ## License
 
-Some of the code contained in this repository is based on code in blog posts, forum posts, or tutorials by Dave Saunders, Marc Autret, and Peter Kahrel. Credit is given in comments in the code in these cases. One of the scripts, ProcessText, has a section that is largely based on the FindChangeByList script that comes with Adobe InDesign. The rest of the code is released under the MIT License below:
+Some of the code contained in this repository is based on code in blog posts, forum posts, or tutorials by Dave Saunders, Marc Autret, Peter Werner, and Peter Kahrel. Credit is given in comments in the code in these cases. One of the scripts, ProcessText, has a section that is largely based on the FindChangeByList script that comes with Adobe InDesign. The rest of the code is released under the MIT License below:
 
 >__Copyright (c) 2011 Richard Harrington and the Forward Newspaper__
 
