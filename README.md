@@ -30,16 +30,16 @@ Suggestions or modifications are welcome.
 
 ### Scripts available to all our users through menu items
 
-* ExportMarkdown
+* ExportMarkdown  
 A script that exports an InDesign/InCopy story to markdown format, suitable for cutting and pasting into a website's CMS. Written long ago, encompassing a lot of functionality, probably should be broken up into pieces. Some of it is gobbledygook but it works. There is also a LOT of stuff in here that is specific to our newspaper.
 
-* ExportAllStories
+* ExportAllStories  
 A simple script that takes all the stories in an InDesign document and concatenates them into one story, suitable for printing or emailing.
 
-* Add/Edit Hyperlink
+* Add/Edit Hyperlink  
 A script that adds a hyperlink to the selected text (or edits an existing hyperlink) in the format we prefer: with a visible but unobtrusive orange dotted border, and without creating a shared hyperlink destination. This visible border does not show up in print or in pdfs. This script was written fairly recently and the data is well-separated from the logic, so it might be useful in the wider world.
 
-* RemoveHyperlink
+* RemoveHyperlink  
 Fairly self-explanatory.
 
 
