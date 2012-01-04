@@ -1,19 +1,12 @@
 /*
 
-- open Photoshop.
+Take a picture selected in InDesign, open it in Photoshop,
+convert to CMYK and save under a new name, then replace
+the original picture with the new one in InDesign.
 
-- in Photoshop: 
-
-- open file.
-
-- change to cmyk.
-
-- save as psd with the string ' cmyk.psd' inserted in place of the old file extension
-	
-- open Indesign.
-
-- import the new file.
 */
+
+#targetengine convertToCMYK
 
 #include util.jsx
 
@@ -27,31 +20,38 @@ var sel,
     newImageFilePath,
     fileExt;
 
-var importNewCMYKFile,
-    psConvertToCMYK,
+var psConvertToCMYK,
     convertInPhotoshop,
-    createEventHandler;
-    
-createImagePlacingEventHandler = function( img, path ) {
-    return function() {
-        img.place( path );
-    }
-};
+    callback;
 
-psConvertToCMYK = function( filePath, newFilePath ) {
+psConvertToCMYK = function( filePath ) {
+    
+    var addCMYKToName = function( name ) {
+        return name.slice( 0, name.lastIndexOf( '.' )) + ' cmyk.psd';
+    };
     var doc = app.open( File( filePath ));
+    var newFilePath = addCMYKToName( filePath );
+    var newFile = File( newFilePath );
+    
+    /* Add another " cmyk" to the name if there's one already there. */
+    if (newFile.exists) {
+        newFilePath = addCMYKToName( newFilePath );
+        newFile = File( newFilePath );
+    }
     
     doc.changeMode( ChangeMode.CMYK );
-    doc.saveAs( File( newFilePath ));
+    doc.saveAs( newFile );
     doc.close( SaveOptions.DONOTSAVECHANGES );
-} 
+    
+    return newFilePath;
+};
 
-convertInPhotoshop = function( conversion, onReturn, myFilePath, myNewFilePath ) {
+convertInPhotoshop = function( conversion, filePath, returnHandler ) {
   var bt = new BridgeTalk();
   bt.target = "photoshop";
-  bt.body = conversion.toSource() + "(" + myFilePath.toSource() + "," + myNewFilePath.toSource() + ")";
-  bt.onResult = onReturn;
-  bt.send( 30 );
+  bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
+  bt.onResult = returnHandler;
+  bt.send();
 };
 
 if (!util.selectionIs( "Image", "Rectangle") ) {
@@ -68,17 +68,18 @@ if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS )) {
     util.errorExit( "This doesn't look like an image file to me. Maybe the file extension is wrong. Please do this conversion manually." );
 }
 
-newImageFilePath = imageFilePath.slice( 0, imageFilePath.lastIndexOf( '.' )) + ' cmyk.psd';
-importNewCMYKFile = createImagePlacingEventHandler( image, newImageFilePath );
+// callback imports the converted image into InDesign.
 
-convertInPhotoshop( psConvertToCMYK, importNewCMYKFile, imageFilePath, newImageFilePath );
+callback = (function( img ) {
+    return function( resultObj ) {
+        var path = resultObj.body;
+        img.place( path );        
+    };
+})( image );
 
-$.writeln("imageFilePath: " + imageFilePath + "\nfileExt: " + fileExt + "\nnewImageFilePath: " + newImageFilePath + "\n");
-
+convertInPhotoshop( psConvertToCMYK, imageFilePath, callback );
 
 
 
 // That's all folks.
-
-
 
