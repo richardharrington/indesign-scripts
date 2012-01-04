@@ -78,7 +78,7 @@ if (!FORWARD.Util) {
               var sel = app.selection[0];
               
               if (!sel || !sel.isValid) {
-                  return;
+                  return false;
               }
             
               var i, 
