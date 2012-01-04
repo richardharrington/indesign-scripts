@@ -15,8 +15,9 @@ var util = FORWARD.Util;
 var ACCEPTED_FILE_EXTENSIONS = ['tif', 'tiff', 'jpg', 'jpeg', 'png', 'gif', 'psd'];
 
 var sel, 
+    targetApp,
     image, 
-    imageFilePath,
+    imageFilePath, 
     newImageFilePath,
     fileExt;
 
@@ -46,13 +47,18 @@ psConvertToCMYK = function( filePath ) {
     return newFilePath;
 };
 
-convertInPhotoshop = function( conversion, filePath, returnHandler ) {
+convertFile = function( appSpecifier, conversion, filePath, returnHandler ) {
   var bt = new BridgeTalk();
-  bt.target = "photoshop";
+  bt.target = appSpecifier;
   bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
   bt.onResult = returnHandler;
   bt.send();
 };
+
+targetApp = BridgeTalk.getSpecifier( "photoshop");
+if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
+    util.errorExit( 'Please start Photoshop and then try again.' );
+}
 
 if (!util.selectionIs( "Image", "Rectangle") ) {
     util.errorExit( "Please select an image and try again." );
@@ -77,7 +83,7 @@ callback = (function( img ) {
     };
 })( image );
 
-convertInPhotoshop( psConvertToCMYK, imageFilePath, callback );
+convertFile( targetApp, psConvertToCMYK, imageFilePath, callback );
 
 
 
