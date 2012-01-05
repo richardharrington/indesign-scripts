@@ -2,7 +2,7 @@
 
 Take a picture selected in InDesign, open it in Photoshop,
 convert to CMYK and save under a new name, then replace
-the original picture with the new one in InDesign.
+the original picture with the new one in InDesign. 
 
 */
 
