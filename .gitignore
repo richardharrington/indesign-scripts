@@ -3,5 +3,6 @@
 
 *
 !README.md
-sourcefiles/old/
+!sourcefiles
+sourcefiles/old
 
