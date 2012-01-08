@@ -1,3 +1,7 @@
+# all files in the top directory are wrappers and should be ignored
+# except README.md
+
 *
-!sourcefiles/
-sourcefiles/old
+!README.md
+sourcefiles/old/
+
