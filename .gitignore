@@ -1,10 +1,4 @@
-# all files in the top directory are wrappers and should be ignored
-# except README.md
+# ignore the wrapper files, which are all capitalized
 
-*
+[A-Z]*
 !README.md
-!sourcefiles
-!sourcefiles/*
-sourcefiles/old
-sourcefiles/old/*
-
