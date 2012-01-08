@@ -6,7 +6,7 @@ or it edits an existing one.
 
 */
 
-#include util.jsx
+#include utilities/util.jsx
 
 ;
 

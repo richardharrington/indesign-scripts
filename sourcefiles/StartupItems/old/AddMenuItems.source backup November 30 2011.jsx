@@ -1,6 +1,6 @@
 #targetengine "MyStartupItems"
 
-#include "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/sourcefiles/util.jsx"
+#include "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts/sourcefiles/utilities/util.jsx"
 
 // This script installs menu items and is a generalization of a script
 // by Marc Autret, found at 

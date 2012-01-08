@@ -1,6 +1,6 @@
 #targetengine "MyStartupItems"
 
-#include "../util.jsx"
+#include "../utilities/util.jsx"
 
 // /Volumes/English/PRODUCTION FILES/MASTER FOLDER/indesign scripts
 
