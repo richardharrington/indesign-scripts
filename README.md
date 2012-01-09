@@ -2,7 +2,9 @@
 
 This is a collection of tools for use with Adobe InDesign and Adobe InCopy, mostly written by Richard Harrington (me) at the Forward Newspaper in New York.
 
-The scripts at the top level of the directory are wrappers, and they all contain the exact same code. The code checks the name of the file containing itself, and then calls a script starting with the identical name -- except that it ends with .source.jsx instead of .jsx -- in the sourcefiles folder. (There is no need to encapsulate the source scripts in anonymous function calls, because the wrapper scripts take care of that.)
+The scripts are mostly at the top level of the sourcefiles folder. They do not have any namespace protection because that is provided in the real-life build at our workplace, for each script, by a wrapper script with the same name (minus the ".source" part of the name). This script is placed at the top level of the repository. All of these wrapper scripts have the same contents. They check the name of the file containing themselves, and then they call the corresponding script in the sourcefiles folder. 
+
+So if you use any of these scripts, clone the repository as-is into one your indesign Scripts Panel folder (or put an alias there to wherever your cloned repository is) and then create the wrapper scripts for any scripts you want to use, by copying the contents of the file sourcefiles/utilities/wrapperScriptTemplate.jsx into a new file with the name \<newscriptfilename\>.source.jsx, and putting it at the top level.
 
 The purpose of this convolution is so that each script can be reversed by a single Undo action in InDesign or InCopy. Many of the source scripts, if run on their own, would take several steps to undo, but when run from the wrapper script, it is always one step.
 
