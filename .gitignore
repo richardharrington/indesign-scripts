@@ -1,9 +1,5 @@
 # Ignore the wrapper .jsx files on the top level.
-*.jsx
+/*.jsx
 
-sourcefiles/old
-sourcefiles/old/*
-
+/sourcefiles/old/*
 .DS_Store
-*/.DS_Store
-*/*/.DS_Store
