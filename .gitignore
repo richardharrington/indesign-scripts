@@ -1,4 +1,9 @@
-# ignore the wrapper files, which are all capitalized
+# Ignore the wrapper .jsx files on the top level.
+*.jsx
 
-[A-Z]*
-!README.md
+sourcefiles/old
+sourcefiles/old/*
+
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
