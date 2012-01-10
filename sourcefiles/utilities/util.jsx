@@ -18,9 +18,9 @@ if (!FORWARD.Util) {
     
     (function() {
         
-        var Util = FORWARD.Util;
+        var util = FORWARD.Util;
 
-        Util.addMethodToPrototypes = function( method, property /* , a bunch of constructor functions */ ) {
+        util.addMethodToPrototypes = function( method, property /* , a bunch of constructor functions */ ) {
             var i, len;
             var constructors = Array.prototype.slice.call( arguments, 2 );
 
@@ -34,12 +34,12 @@ if (!FORWARD.Util) {
         
         // First, all the standalone functions (ones without "this" keywords in them):
 
-        Util.errorExit = function( message ) {
+        util.errorExit = function( message ) {
             if (arguments.length > 0) alert(unescape(message));
             exit();
         };
         
-        Util.error_exit = Util.errorExit; // Delete this when we swap out the old underscore usage.
+        util.error_exit = util.errorExit; // Delete this when we swap out the old underscore usage.
 
         
         // This forEach method will work on InDesign collections
@@ -47,7 +47,7 @@ if (!FORWARD.Util) {
         // so that if you pass it a function that returns a value,
         // forEach will return an array of those values.
 
-        Util.forEach = function( array, action ) {
+        util.forEach = function( array, action ) {
             
             // If it's an InDesign DOM collection
             if (array.everyItem) {                      
@@ -62,28 +62,28 @@ if (!FORWARD.Util) {
         };
 
 
-        Util.isIn = function( searchValue, array, caseSensitive ) {
-	        caseSensitive = caseSensitive || true;
-	        var item;
-	
-	 		if (!caseSensitive && typeof searchValue === 'string') {
-		        searchValue = searchValue.toLowerCase();
-			}
+        util.isIn = function( searchValue, array, caseSensitive ) {
+            caseSensitive = (typeof caseSensitive !== 'undefined') ? caseSensitive : true;
+            var item;
+    
+            if (!caseSensitive && typeof searchValue === 'string') {
+                searchValue = searchValue.toLowerCase();
+            }
             for (var i = 0, len = array.length; i < len; i++) {
-	            item = array[i];
-	            if (!caseSensitive && typeof item === 'string') {
-		        	item = item.toLowerCase();
-            	}
+                item = array[i];
+                if (!caseSensitive && typeof item === 'string') {
+                    item = item.toLowerCase();
+                }
                 if (item === searchValue) return true;
             }
         };
             
         
-        Util.isArray = function( obj ) {
+        util.isArray = function( obj ) {
             return Object.prototype.toString.call( obj ) === "[object Array]";
         };
         
-        Util.selectionIs = function( /* further argument list of valid constructor names for the selection */) {
+        util.selectionIs = function( /* further argument list of valid constructor names for the selection */) {
             
               var sel = app.selection[0];
               
@@ -102,7 +102,7 @@ if (!FORWARD.Util) {
               return false;
         }
                 
-        Util.reverseString = function (str) {
+        util.reverseString = function (str) {
             var newStr = '';
             var i;
             for (i=0; i<str.length; i++) {
@@ -111,7 +111,7 @@ if (!FORWARD.Util) {
             return newStr;
         }
         
-        Util.onlyWhitespace = function(obj) /* returns boolean */ {
+        util.onlyWhitespace = function(obj) /* returns boolean */ {
             var i;
             var myFoundNonWhitespace;
             for (i=0; i<obj.length; i++) {
@@ -123,7 +123,7 @@ if (!FORWARD.Util) {
             return true;
         }
         
-        Util.containsAny = function(myStr, mySearchWords, caseSensitive) {
+        util.containsAny = function(myStr, mySearchWords, caseSensitive) {
             if (arguments.length < 2) var caseSensitive = false; // defaults to case-insensitive 
             if (!caseSensitive) myStr = myStr.toLowerCase();
             var i;
@@ -138,7 +138,7 @@ if (!FORWARD.Util) {
             return false;
         }
         
-        Util.addLeadingZeroes = function(myNum, numDigits) {  
+        util.addLeadingZeroes = function(myNum, numDigits) {  
             
             var myStr = "" + myNum;
             var numZeros = numDigits - myStr.length;
@@ -148,12 +148,12 @@ if (!FORWARD.Util) {
             }
             return myStr;
         };
-        Util.add_leading_zeros = Util.addLeadingZeroes; // Delete this after we replace all the old references.
+        util.add_leading_zeros = util.addLeadingZeroes; // Delete this after we replace all the old references.
         
             
         // takes either a string or an InDesign text object
         
-        Util.convertToStraightQuotes = function( myObject ) {
+        util.convertToStraightQuotes = function( myObject ) {
             
             if (typeof myObject === "string" ) {
                 var myStr = myObject;
@@ -171,7 +171,7 @@ if (!FORWARD.Util) {
         }                
         
         
-        Util.getActiveScript = function() {
+        util.getActiveScript = function() {
             try {
                 var myScript = app.activeScript;
             } catch (e) {
@@ -182,9 +182,9 @@ if (!FORWARD.Util) {
         }
         
         
-        Util.myFindFile = function(myFileName, myFolderName) {
+        util.myFindFile = function(myFileName, myFolderName) {
             var myFile;
-            var myScriptFileName = Util.getActiveScript();
+            var myScriptFileName = util.getActiveScript();
             
             //Get a file reference to the script.
             var myScriptFile = File(myScriptFileName);
@@ -205,7 +205,7 @@ if (!FORWARD.Util) {
         // Returns an array of hyperlink objects whose source texts
         // are wholly or partially contained within the textObj argument.
         
-        Util.findHyperlinks = function( textObj ) {
+        util.findHyperlinks = function( textObj ) {
             
             var textObjParentStory = (textObj.constructor.name == "Story") ? textObj : textObj.parentStory;
             var doc = textObjParentStory.parent;
@@ -236,40 +236,40 @@ if (!FORWARD.Util) {
         // Now, all the methods intended to be added to the builtin and InDesign prototypes
         // (this means that they have "this" keywords in them):
         
-		Util.openWithoutWarnings = function (myFile, myShowingWindow) {
-		    if (arguments.length < 2) {
-		        var myShowingWindow = true; // default
-		    }
-		    // Avoid random dialog alerts (missing fonts, picture links, etc.) when opening the file(s).
-		    this.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
+        util.openWithoutWarnings = function (myFile, myShowingWindow) {
+            if (arguments.length < 2) {
+                var myShowingWindow = true; // default
+            }
+            // Avoid random dialog alerts (missing fonts, picture links, etc.) when opening the file(s).
+            this.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
 
-		    // This line may return an array or a single file
-		    var doc = this.open(myFile, myShowingWindow);  // defaults to opening a window with the document.
+            // This line may return an array or a single file
+            var doc = this.open(myFile, myShowingWindow);  // defaults to opening a window with the document.
 
-		    // Restore user interaction
-		    app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
-		    return doc;
-		};
-        Util.addMethodToPrototypes( Util.openWithoutWarnings, "openWithoutWarnings", Application );
+            // Restore user interaction
+            app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
+            return doc;
+        };
+        util.addMethodToPrototypes( util.openWithoutWarnings, "openWithoutWarnings", Application );
 
 
-        Util.getParagraphStyle = function( name ) {
-        	var i;
-        	var style = this.paragraphStyles.itemByName( name );
-        	if (!style.isValid) {
-        		i = this.paragraphStyleGroups.length;
-        		while (i) {
-        			i -= 1;
-        			style = getParagraphStyle.call( this.paragraphStyleGroups[i], name );
-        		}
-        	}
-        	return style; //     If we haven't found a style with name "name", 
+        util.getParagraphStyle = function( name ) {
+            var i;
+            var style = this.paragraphStyles.itemByName( name );
+            if (!style.isValid) {
+                i = this.paragraphStyleGroups.length;
+                while (i) {
+                    i -= 1;
+                    style = getParagraphStyle.call( this.paragraphStyleGroups[i], name );
+                }
+            }
+            return style; //     If we haven't found a style with name "name", 
                         //     getParagraphStyle will return an invalid object.
         }
-        Util.addMethodToPrototypes( Util.getParagraphStyle, "getParagraphStyle", Document );
+        util.addMethodToPrototypes( util.getParagraphStyle, "getParagraphStyle", Document );
         
         
-        Util.removeDeep = function() {
+        util.removeDeep = function() {
             var src = this.source;
             var dest = this.destination;
             if (dest)
@@ -282,9 +282,9 @@ if (!FORWARD.Util) {
                 dest.remove();
         };
 
-        Util.addMethodToPrototypes( Util.removeDeep, "removeDeep", Hyperlink );
+        util.addMethodToPrototypes( util.removeDeep, "removeDeep", Hyperlink );
         
-        Util.multiChangeGrep = function (findChangeArray) {
+        util.multiChangeGrep = function (findChangeArray) {
             var findChangePair;
             app.changeGrepPreferences = NothingEnum.nothing;
             app.findGrepPreferences = NothingEnum.nothing;
@@ -299,7 +299,7 @@ if (!FORWARD.Util) {
             }
         }           
         
-        Util.addMethodToPrototypes( Util.multiChangeGrep, "multiChangeGrep",
+        util.addMethodToPrototypes( util.multiChangeGrep, "multiChangeGrep",
             Character, 
             Word, 
             TextStyleRange, 
@@ -323,7 +323,7 @@ if (!FORWARD.Util) {
         // element of each of which will be converted
         // first into a RegExp, if it comes in as a string.
         
-        Util.multiReplace = function (findChangeArray) {
+        util.multiReplace = function (findChangeArray) {
             var myFind, myChange;
             var findChangePair;
             var str = this;
@@ -339,7 +339,7 @@ if (!FORWARD.Util) {
             return str;
         };
         
-        Util.addMethodToPrototypes( Util.multiReplace, "multiReplace", String );
+        util.addMethodToPrototypes( util.multiReplace, "multiReplace", String );
 
     })();
 }
