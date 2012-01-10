@@ -226,6 +226,23 @@ if (!FORWARD.Util) {
         // Now, all the methods intended to be added to the builtin and InDesign prototypes
         // (this means that they have "this" keywords in them):
         
+		Util.openWithoutWarnings = function (myFile, myShowingWindow) {
+		    if (arguments.length < 2) {
+		        var myShowingWindow = true; // default
+		    }
+		    // Avoid random dialog alerts (missing fonts, picture links, etc.) when opening the file(s).
+		    this.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
+
+		    // This line may return an array or a single file
+		    var doc = this.open(myFile, myShowingWindow);  // defaults to opening a window with the document.
+
+		    // Restore user interaction
+		    app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
+		    return doc;
+		};
+        Util.addMethodToPrototypes( Util.openWithoutWarnings, "openWithoutWarnings", Application );
+
+
         Util.getParagraphStyle = function( name ) {
         	var i;
         	var style = this.paragraphStyles.itemByName( name );
