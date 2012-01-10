@@ -62,9 +62,19 @@ if (!FORWARD.Util) {
         };
 
 
-        Util.isIn = function( searchValue, array ) {
+        Util.isIn = function( searchValue, array, caseSensitive ) {
+	        caseSensitive = caseSensitive || true;
+	        var item;
+	
+	 		if (!caseSensitive && typeof searchValue === 'string') {
+		        searchValue = searchValue.toLowerCase();
+			}
             for (var i = 0, len = array.length; i < len; i++) {
-                if (array[i] === searchValue) return true;
+	            item = array[i];
+	            if (!caseSensitive && typeof item === 'string') {
+		        	item = item.toLowerCase();
+            	}
+                if (item === searchValue) return true;
             }
         };
             

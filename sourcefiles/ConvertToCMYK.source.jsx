@@ -70,7 +70,8 @@ image = (util.selectionIs( "Image" )) ? sel : sel.images[0];
 imageFilePath = image.itemLink.filePath;
 fileExt = imageFilePath.substring( imageFilePath.lastIndexOf( '.' )).slice( 1 );
 
-if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS )) {
+// Check file extensions ('false' means a case-insensitive check)
+if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS, false )) {
     util.errorExit( "This doesn't look like an image file to me. Maybe the file extension is wrong. Please do this conversion manually." );
 }
 
