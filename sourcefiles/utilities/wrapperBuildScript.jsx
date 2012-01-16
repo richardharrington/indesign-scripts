@@ -23,13 +23,13 @@ var sourceFilesFolder = thisFolder.parent;
 var topLevelFolder = sourceFilesFolder.parent;
 
 // Set the wrapper build script (MAKE THIS A CONFIG AT THE TOP).
-var wrapperScriptTemplateFile = File( thisFolder.name + '/wrapperScriptTemplate.jsx' );
+var wrapperScriptTemplateFile = File( thisFolder.fullName + '/wrapperScriptTemplate.jsx' );
     
 // Get the list of all sourcefiles in the sourcefiles folder.
 var sourceFiles = sourceFilesFolder.getFiles("*.source.jsx");
 
 util.forEach( sourceFiles, function( file ) {
-	wrapperFile = File( (topLevelFolder + '/' + file.name.replace( '.source', '' )));
+	wrapperFile = File( (topLevelFolder.fullName + '/' + file.name.replace( '.source', '' )));
 	if (!wrapperFile.exists) {
 		wrapperScriptTemplateFile.copy( wrapperFile );
 	}
