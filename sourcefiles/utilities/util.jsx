@@ -236,6 +236,46 @@ if (!FORWARD.Util) {
         // Now, all the methods intended to be added to the builtin and InDesign prototypes
         // (this means that they have "this" keywords in them):
         
+        // changeDestinationSharing changes the status of a hyperlink's destination
+        // property from shared to not shared, or vice versa.
+        
+        util.changeDestinationSharing = function( shared ) {
+
+          var newDestHidden = !shared;  
+          var doc = this.parent;
+
+          var dest = this.destination;
+          if (!dest) {
+            throw new Error("This hyperlink is missing its destination.");
+          }
+
+          var destURL = dest.destinationURL;
+          var destName = dest.name;
+          var destHidden = dest.hidden;
+
+          // If the shared status of the existing destination does not
+          // match what we want, remove the old one and replace it with a new one.
+
+          if (destHidden !== newDestHidden) {
+            dest.remove();
+            dest = doc.hyperlinkURLDestinations.add( 
+                    destURL, {name: destName || Math.random().toString(), hidden: newDestHidden} );
+            this.destination = dest;
+          }
+        };
+        util.addMethodToPrototypes( util.changeDestinationSharing, "changeDestinationSharing", Hyperlink );
+
+        // change alters a hyperlink's properties, including its destination sharing.
+        
+        util.change = function( props, sharedDest ) {
+          if (arguments.length > 1) {
+            this.changeDestinationSharing( sharedDest );
+          }
+          this.properties = props;  
+        };
+        util.addMethodToPrototypes( util.change, "change", Hyperlink );
+        
+        
         util.openWithoutWarnings = function (myFile, myShowingWindow) {
             if (arguments.length < 2) {
                 var myShowingWindow = true; // default
