@@ -2,4 +2,5 @@
 /*.jsx
 
 /sourcefiles/old/*
+/sourcefiles/TextProcessSupport/old/*
 .DS_Store
