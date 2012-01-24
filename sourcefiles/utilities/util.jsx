@@ -230,6 +230,76 @@ if (!FORWARD.Util) {
             return foundLinks;
         }
         
+        
+        // This will take a string.
+        util.convertStringToStraightQuotes = function(myStr) {
+            return myStr.replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+        };
+
+        // This will take an InDesign text object.
+        util.convertTextObjectToStraightQuotes = function(myObject) {
+            myFindGrep(myObject, {findWhat: '[“”]'}, {changeTo: '"'}, undefined);
+            myFindGrep(myObject, {findWhat: "[‘’]"}, {changeTo: "'"}, undefined);
+        };
+        
+        
+        
+        util.myFindText = function(myObject, myFindPreferences, myChangePreferences, myFindChangeOptions) {
+            //Reset the find/change preferences before each search.
+            app.changeTextPreferences = NothingEnum.nothing;
+            app.findTextPreferences = NothingEnum.nothing;
+            app.findTextPreferences.properties = myFindPreferences;
+            if (myChangePreferences) app.changeTextPreferences.properties = myChangePreferences;
+            if (myFindChangeOptions) app.findChangeTextOptions.properties = myFindChangeOptions;
+            var myFoundItems;
+            if (myChangePreferences) {
+                myFoundItems = myObject.changeText();
+            } else {
+                myFoundItems = myObject.findText();
+            }
+            //Reset the find/change preferences after each search.
+            app.changeTextPreferences = NothingEnum.nothing;
+            app.findTextPreferences = NothingEnum.nothing;
+            return myFoundItems;
+        };
+
+        util.myFindGrep = function(myObject, myFindPreferences, myChangePreferences, myFindChangeOptions) {
+            //Reset the find/change grep preferences before each search.
+            app.changeGrepPreferences = NothingEnum.nothing;
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.findGrepPreferences.properties = myFindPreferences;
+            if (myChangePreferences) app.changeGrepPreferences.properties = myChangePreferences;
+            if (myFindChangeOptions) app.findChangeGrepOptions.properties = myFindChangeOptions;
+            var myFoundItems;
+            if (myChangePreferences) {
+                myFoundItems = myObject.changeGrep();
+            } else {
+                myFoundItems = myObject.findGrep();
+            }
+            //Reset the find/change grep preferences after each search.
+            app.changeGrepPreferences = NothingEnum.nothing;
+            app.findGrepPreferences = NothingEnum.nothing;
+            return myFoundItems;
+        };
+
+        util.myFindGlyph = function(myObject, myFindPreferences, myChangePreferences, myFindChangeOptions) {
+            //Reset the find/change glyph preferences before each search.
+            app.changeGlyphPreferences = NothingEnum.nothing;
+            app.findGlyphPreferences = NothingEnum.nothing;
+            app.findGlyphPreferences.properties;
+            if (myChangePreferences) app.changeGlyphPreferences.properties;
+            if (myFindChangeOptions) app.findChangeGlyphOptions.properties;
+            if (myChangePreferences) {
+                myFoundItems = myObject.changeGlyph();
+            } else {
+                myFoundItems = myObject.findGlyph();
+            }
+            //Reset the find/change glyph preferences after each search.
+            app.changeGlyphPreferences = NothingEnum.nothing;
+            app.findGlyphPreferences = NothingEnum.nothing;
+            return myFoundItems;
+        };
+        
          
         // ---------------------------------
         
@@ -241,37 +311,37 @@ if (!FORWARD.Util) {
         
         util.changeDestinationSharing = function( shared ) {
 
-          var newDestHidden = !shared;  
-          var doc = this.parent;
+            var newDestHidden = !shared;  
+            var doc = this.parent;
 
-          var dest = this.destination;
-          if (!dest) {
-            throw new Error("This hyperlink is missing its destination.");
-          }
+            var dest = this.destination;
+            if (!dest) {
+                throw new Error("This hyperlink is missing its destination.");
+            }
 
-          var destURL = dest.destinationURL;
-          var destName = dest.name;
-          var destHidden = dest.hidden;
+            var destURL = dest.destinationURL;
+            var destName = dest.name;
+            var destHidden = dest.hidden;
 
-          // If the shared status of the existing destination does not
-          // match what we want, remove the old one and replace it with a new one.
+            // If the shared status of the existing destination does not
+            // match what we want, remove the old one and replace it with a new one.
 
-          if (destHidden !== newDestHidden) {
-            dest.remove();
-            dest = doc.hyperlinkURLDestinations.add( 
-                    destURL, {name: destName || Math.random().toString(), hidden: newDestHidden} );
-            this.destination = dest;
-          }
+            if (destHidden !== newDestHidden) {
+                dest.remove();
+                dest = doc.hyperlinkURLDestinations.add( 
+                        destURL, {name: destName || Math.random().toString(), hidden: newDestHidden} );
+                this.destination = dest;
+            }
         };
         util.addMethodToPrototypes( util.changeDestinationSharing, "changeDestinationSharing", Hyperlink );
 
         // change alters a hyperlink's properties, including its destination sharing.
         
         util.change = function( props, sharedDest ) {
-          if (arguments.length > 1) {
-            this.changeDestinationSharing( sharedDest );
-          }
-          this.properties = props;  
+            if (arguments.length > 1) {
+                this.changeDestinationSharing( sharedDest );
+            }
+            this.properties = props;  
         };
         util.addMethodToPrototypes( util.change, "change", Hyperlink );
         
