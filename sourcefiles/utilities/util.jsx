@@ -373,44 +373,21 @@ if (!FORWARD.Util) {
 
         
 
-        // ---------------------------------
-        
-        // Now, all the methods intended to be added to the builtin and InDesign prototypes
-        // (this means that they have "this" keywords in them):
-        
-                
-        util.multiChangeGrep = function (findChangeArray) {
+        util.multiChangeGrep = function (textObj, findChangeArray) {
             var findChangePair;
-            app.changeGrepPreferences = NothingEnum.nothing;
-            app.findGrepPreferences = NothingEnum.nothing;
             app.findChangeGrepOptions.properties = {includeFootnotes:true, includeMasterPages:true, includeHiddenLayers:true, wholeWord:false};
             for (var i=0; i<findChangeArray.length; i++) {
                 findChangePair = findChangeArray[i];
                 app.findGrepPreferences.findWhat = findChangePair.find;
                 app.changeGrepPreferences.changeTo = findChangePair.change;
-                this.changeGrep();
+                textObj.changeGrep();
                 app.changeGrepPreferences = NothingEnum.nothing;
                 app.findGrepPreferences = NothingEnum.nothing;
             }
-        }           
+        };           
         
-        util.addMethodToPrototypes( util.multiChangeGrep, "multiChangeGrep",
-            Character, 
-            Word, 
-            TextStyleRange, 
-            Line, 
-            Paragraph, 
-            TextColumn,
-            Text, 
-            Cell, 
-            Column, 
-            Row, 
-            Table, 
-            Story, 
-            TextFrame, 
-            XMLElement, 
-            Document, 
-            Application );
+        // ---------------------------------
+        
             
             
         // multiReplace() is intended to take 
@@ -418,10 +395,9 @@ if (!FORWARD.Util) {
         // element of each of which will be converted
         // first into a RegExp, if it comes in as a string.
         
-        util.multiReplace = function (findChangeArray) {
+        util.multiReplace = function (str, findChangeArray) {
             var myFind, myChange;
             var findChangePair;
-            var str = this;
             for (var i=0; i<findChangeArray.length; i++) {
                 findChangePair = findChangeArray[i];
                 myFind = findChangePair.find;
@@ -434,7 +410,5 @@ if (!FORWARD.Util) {
             return str;
         };
         
-        util.addMethodToPrototypes( util.multiReplace, "multiReplace", String );
-
     })();
 }

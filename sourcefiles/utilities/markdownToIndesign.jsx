@@ -81,11 +81,13 @@ if (!FORWARD.markdownToIndesign) {
                 pairs : [
                     {baseChar: "\\", placeholder: "\uA84E"},
                     {baseChar: "]", placeholder: "\uA861"},
-                    {baseChar: ")", placeholder: "\uA84A"},
-                    {baseChar: "*", placeholder: "\uA858"} 
+                    {baseChar: "[", placeholder: "\uA84A"},
+                    {baseChar: ")", placeholder: "\uA858"},
+                    {baseChar: "(", placeholder: "\uA843"},
+                    {baseChar: "*", placeholder: "\uA850"} 
               
-                    // others in this arbitray series, if needed in the future:
-                    // \uA843, \uA850, \uA84B
+                    // one more in this arbitrary series, if needed in the future:
+                    // \uA84B
               
                 ],
                 getHidingPairs: function () {
@@ -132,7 +134,7 @@ if (!FORWARD.markdownToIndesign) {
                
             // Hide escaped characters before we parse the markdown code
               
-            this.multiChangeGrep (escapedChars.getHidingPairs());
+            util.multiChangeGrep (this, escapedChars.getHidingPairs());
               
             // Go through the hyperlinks in the passed object and either kill them or set them
             // to our style, depending on the killAllHyperlinks parameter.
@@ -190,8 +192,8 @@ if (!FORWARD.markdownToIndesign) {
                   
                     // Restore escaped characters in URL
                   
-                    myHyperlink.destination.destinationURL = 
-                    myHyperlink.destination.destinationURL.multiReplace (escapedChars.getRestoringPairs());
+                    myHyperlink.destination.destinationURL = util.multiReplace (myHyperlink.destination.destinationURL, 
+                                                                                escapedChars.getRestoringPairs());
                 }
                 catch (e) {}  // ignore errors
                 
@@ -220,10 +222,7 @@ if (!FORWARD.markdownToIndesign) {
               
             // Markdown code parsed.  Restore escaped characters.
               
-            this.multiChangeGrep (escapedChars.getRestoringPairs());
-              
-            app.changeGrepPreferences = NothingEnum.nothing;
-            app.findGrepPreferences = NothingEnum.nothing;
+            util.multiChangeGrep (this, escapedChars.getRestoringPairs());
         };    
         
         return markdownToIndesign;
