@@ -337,30 +337,31 @@ if (!FORWARD.Util) {
             link.properties = props;  
         };
 
-        // ---------------------------------
-        
-        // Now, all the methods intended to be added to the builtin and InDesign prototypes
-        // (this means that they have "this" keywords in them):
-        
-        
-        
+        // openWithoutWarnings opens a document (or a collection of documents) 
+        // without showing all the dialog boxes
+        // to the user about missing fonts and all that crap.
+
         util.openWithoutWarnings = function (myFile, myShowingWindow) {
             if (arguments.length < 2) {
                 var myShowingWindow = true; // default
             }
             // Avoid random dialog alerts (missing fonts, picture links, etc.) when opening the file(s).
-            this.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
+            app.scriptPreferences.userInteractionLevel = UserInteractionLevels.neverInteract;
 
             // This line may return an array or a single file
-            var doc = this.open(myFile, myShowingWindow);  // defaults to opening a window with the document.
+            var doc = app.open(myFile, myShowingWindow);  // defaults to opening a window with the document.
 
             // Restore user interaction
             app.scriptPreferences.userInteractionLevel = UserInteractionLevels.interactWithAll;
             return doc;
         };
-        util.addMethodToPrototypes( util.openWithoutWarnings, "openWithoutWarnings", Application );
 
+        // ---------------------------------
         
+        // Now, all the methods intended to be added to the builtin and InDesign prototypes
+        // (this means that they have "this" keywords in them):
+        
+                
         util.removeDeep = function() {
             var src = this.source;
             var dest = this.destination;
