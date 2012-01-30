@@ -300,22 +300,15 @@ if (!FORWARD.Util) {
             return results;
         }
         
-        
-        
-        // ---------------------------------
-        
-        // Now, all the methods intended to be added to the builtin and InDesign prototypes
-        // (this means that they have "this" keywords in them):
-        
         // changeDestinationSharing changes the status of a hyperlink's destination
         // property from shared to not shared, or vice versa.
         
-        util.changeDestinationSharing = function( shared ) {
+        util.changeDestinationSharing = function( link, isShared ) {
 
-            var newDestHidden = !shared;  
-            var doc = this.parent;
+            var newDestHidden = !isShared;  
+            var doc = link.parent;
 
-            var dest = this.destination;
+            var dest = link.destination;
             if (!dest) {
                 throw new Error("This hyperlink is missing its destination.");
             }
@@ -331,20 +324,24 @@ if (!FORWARD.Util) {
                 dest.remove();
                 dest = doc.hyperlinkURLDestinations.add( 
                         destURL, {name: destName || Math.random().toString(), hidden: newDestHidden} );
-                this.destination = dest;
+                link.destination = dest;
             }
         };
-        util.addMethodToPrototypes( util.changeDestinationSharing, "changeDestinationSharing", Hyperlink );
-
-        // change alters a hyperlink's properties, including its destination sharing.
         
-        util.change = function( props, sharedDest ) {
+        // changeHyperlink alters a hyperlink's properties, including its destination sharing.
+        
+        util.changeHyperlink = function( link, props, destIsShared ) {
             if (arguments.length > 1) {
-                this.changeDestinationSharing( sharedDest );
+                link.changeDestinationSharing( link, destIsShared );
             }
-            this.properties = props;  
+            link.properties = props;  
         };
-        util.addMethodToPrototypes( util.change, "change", Hyperlink );
+        
+        // ---------------------------------
+        
+        // Now, all the methods intended to be added to the builtin and InDesign prototypes
+        // (this means that they have "this" keywords in them):
+        
         
         
         util.openWithoutWarnings = function (myFile, myShowingWindow) {
@@ -363,22 +360,6 @@ if (!FORWARD.Util) {
         };
         util.addMethodToPrototypes( util.openWithoutWarnings, "openWithoutWarnings", Application );
 
-
-        util.getParagraphStyle = function( name ) {
-            var i;
-            var style = this.paragraphStyles.itemByName( name );
-            if (!style.isValid) {
-                i = this.paragraphStyleGroups.length;
-                while (i) {
-                    i -= 1;
-                    style = getParagraphStyle.call( this.paragraphStyleGroups[i], name );
-                }
-            }
-            return style; //     If we haven't found a style with name "name", 
-                        //     getParagraphStyle will return an invalid object.
-        }
-        util.addMethodToPrototypes( util.getParagraphStyle, "getParagraphStyle", Document );
-        
         
         util.removeDeep = function() {
             var src = this.source;
