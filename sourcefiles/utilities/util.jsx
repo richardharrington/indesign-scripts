@@ -280,6 +280,28 @@ if (!FORWARD.Util) {
         };
         
         
+        util.iterateThroughParagraphStyles = function iterate( parent, func ) {
+            util.forEach( parent.paragraphStyles, function( style ) {
+                func( style );
+            });
+            util.forEach( parent.paragraphStyleGroups, function( group ) {
+                iterate( group, func );
+            });
+        };
+
+        util.getParagraphStyleByName = function( doc, name ) {
+            var results = [];
+            var style;
+            util.iterateThroughParagraphStyles( doc, function( style ) {
+                if (style.name === name) {
+                    results.push( style );
+                }
+            });
+            return results;
+        }
+        
+        
+        
         // ---------------------------------
         
         // Now, all the methods intended to be added to the builtin and InDesign prototypes
