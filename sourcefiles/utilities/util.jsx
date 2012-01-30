@@ -356,27 +356,29 @@ if (!FORWARD.Util) {
             return doc;
         };
 
-        // ---------------------------------
+        // removes a hyperlink along with its source and destination.
         
-        // Now, all the methods intended to be added to the builtin and InDesign prototypes
-        // (this means that they have "this" keywords in them):
-        
-                
-        util.removeDeep = function() {
-            var src = this.source;
-            var dest = this.destination;
+        util.removeHyperlinkDeep = function( link ) {
+            var src = link.source;
+            var dest = link.destination;
             if (dest)
                 var destHidden = dest.hidden;
 
-            this.remove();
+            link.remove();
             if (src) 
                 src.remove();
             if (dest && !destHidden) 
                 dest.remove();
         };
 
-        util.addMethodToPrototypes( util.removeDeep, "removeDeep", Hyperlink );
         
+
+        // ---------------------------------
+        
+        // Now, all the methods intended to be added to the builtin and InDesign prototypes
+        // (this means that they have "this" keywords in them):
+        
+                
         util.multiChangeGrep = function (findChangeArray) {
             var findChangePair;
             app.changeGrepPreferences = NothingEnum.nothing;
