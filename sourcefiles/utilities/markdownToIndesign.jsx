@@ -142,7 +142,7 @@ if (!FORWARD.markdownToIndesign) {
                 for (var h = myFoundHyperlinks.length-1; h >= 0; h--) {
                     var link = myFoundHyperlinks[h];
                     if (killAllIndesignHyperlinks) {
-                        link.removeDeep();
+                        util.removeHyperlinkDeep(link);
                     }
                     else {
                         link.properties = hyperlinkProperties;
@@ -163,13 +163,12 @@ if (!FORWARD.markdownToIndesign) {
                 // if that boolean parameter is true.
                     
                 if (killRedundantIndesignHyperlinks) {
-                        
                     // myRedundantHyperlinks should come out null if we have already removed ALL hyperlinks.
                         
-                    myRedundantHyperlinks = util.findHyperlinks( this );
+                    myRedundantHyperlinks = util.findHyperlinks( myLinkText );
                     if (myRedundantHyperlinks.length > 0) {
                         for (var r=myRedundantHyperlinks.length-1; r>=0; r--) {
-                            myRedundantHyperlinks[r].removeDeep();
+                            util.removeHyperlinkDeep(myRedundantHyperlinks[r]);
                         }
                     }
                 }
