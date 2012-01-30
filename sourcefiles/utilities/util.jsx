@@ -302,7 +302,7 @@ if (!FORWARD.Util) {
         
         // changeDestinationSharing changes the status of a hyperlink's destination
         // property from shared to not shared, or vice versa.
-        
+
         util.changeDestinationSharing = function( link, isShared ) {
 
             var newDestHidden = !isShared;  
@@ -327,16 +327,16 @@ if (!FORWARD.Util) {
                 link.destination = dest;
             }
         };
-        
+
         // changeHyperlink alters a hyperlink's properties, including its destination sharing.
-        
+
         util.changeHyperlink = function( link, props, destIsShared ) {
             if (arguments.length > 1) {
-                link.changeDestinationSharing( link, destIsShared );
+                util.changeDestinationSharing( link, destIsShared );
             }
             link.properties = props;  
         };
-        
+
         // ---------------------------------
         
         // Now, all the methods intended to be added to the builtin and InDesign prototypes
