@@ -5,6 +5,7 @@
 #include utilities/markdownToIndesign.jsx
 
 var util = FORWARD.Util;
+var markdownToIndesign = FORWARD.markdownToIndesign;
 
 
 var DEFAULT_HYPERLINK_PROPERTIES = {
@@ -65,7 +66,7 @@ if (myObject == null) util.errorExit("There's been an error of indeterminate nat
 
 
 // Hyperlinks:  Convert markdown hyperlinks to InDesign Hyperlink objects.
-myObject.markdownToIndesign( DEFAULT_HYPERLINK_PROPERTIES, false ); // false means don't override existing Indesign hyperlinks.
+markdownToIndesign.convert( myObject, DEFAULT_HYPERLINK_PROPERTIES, false ); // false means don't override existing Indesign hyperlinks.
 
 
 

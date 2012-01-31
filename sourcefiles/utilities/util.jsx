@@ -20,19 +20,6 @@ if (!FORWARD.Util) {
         
         var util = FORWARD.Util;
 
-        util.addMethodToPrototypes = function( method, property /* , a bunch of constructor functions */ ) {
-            var i, len;
-            var constructors = Array.prototype.slice.call( arguments, 2 );
-
-            for (i = 0, len = constructors.length; i < len; i++) {
-                constructors[i].prototype[property] = method;
-            }
-        }
-        
-        
-        // ---------------------------------
-        
-        // First, all the standalone functions (ones without "this" keywords in them):
 
         util.errorExit = function( message ) {
             if (arguments.length > 0) alert(unescape(message));
@@ -124,8 +111,10 @@ if (!FORWARD.Util) {
         }
         
         util.containsAny = function(myStr, mySearchWords, caseSensitive) {
-            if (arguments.length < 2) var caseSensitive = false; // defaults to case-insensitive 
-            if (!caseSensitive) myStr = myStr.toLowerCase();
+            caseSensitive = (typeof caseSensitive !== 'undefined' && caseSensitive !== null) ? caseSensitive : false;
+            if (!caseSensitive) {
+                myStr = myStr.toLowerCase();
+            }
             var i;
             var mySearchWord;
             for (i = 0; i < mySearchWords.length; i++) {
@@ -331,11 +320,12 @@ if (!FORWARD.Util) {
         // changeHyperlink alters a hyperlink's properties, including its destination sharing.
 
         util.changeHyperlink = function( link, props, destIsShared ) {
-            if (arguments.length > 1) {
+            if (typeof destIsShared !== 'undefined' && destIsShared !== null) {
                 util.changeDestinationSharing( link, destIsShared );
             }
             link.properties = props;  
         };
+
 
         // openWithoutWarnings opens a document (or a collection of documents) 
         // without showing all the dialog boxes
