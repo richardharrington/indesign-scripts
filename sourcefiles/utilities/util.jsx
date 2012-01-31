@@ -317,15 +317,6 @@ if (!FORWARD.Util) {
             }
         };
 
-        // changeHyperlink alters a hyperlink's properties, including its destination sharing.
-
-        util.changeHyperlink = function( link, props, destIsShared ) {
-            if (typeof destIsShared !== 'undefined' && destIsShared !== null) {
-                util.changeDestinationSharing( link, destIsShared );
-            }
-            link.properties = props;  
-        };
-
 
         // openWithoutWarnings opens a document (or a collection of documents) 
         // without showing all the dialog boxes

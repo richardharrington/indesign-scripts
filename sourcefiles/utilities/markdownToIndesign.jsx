@@ -24,12 +24,8 @@ FORWARD.markdownToIndesign = FORWARD.markdownToIndesign || (function() {
     // we might add other functions to the object 'markdownToIndesign', so we're making it
     // a module namespace instead of its own function. The main function is then called 'convert'.
 
-    markdownToIndesign.convert = function( textObj, hyperlinkProperties, killRedundantIndesignHyperlinks, killAllIndesignHyperlinks ) {
-
-        // Set defaults for parameters
-        killRedundantIndesignHyperlinks = killRedundantIndesignHyperlinks || true;
-        killAllIndesignHyperlinks = killAllIndesignHyperlinks || false;    
-              
+    markdownToIndesign.convert = function( textObj, hyperlinkProperties ) {
+        
         // Check for the existence of the "ITALIC normal" character style,
         // to support our quick and dirty fix to process
         // Markdown italics in the case of Word files. 
@@ -135,74 +131,48 @@ FORWARD.markdownToIndesign = FORWARD.markdownToIndesign || (function() {
           
         util.multiChangeGrep (textObj, escapedChars.getHidingPairs());
           
-        // Go through the hyperlinks in the passed object and either kill them or set them
-        // to our style, depending on the killAllHyperlinks parameter.
-        
-        var myFoundHyperlinks = util.findHyperlinks( textObj );
-        if (myFoundHyperlinks.length > 0) {
-            for (var h = myFoundHyperlinks.length-1; h >= 0; h--) {
-                var link = myFoundHyperlinks[h];
-                if (killAllIndesignHyperlinks) {
-                    util.removeHyperlinkDeep(link);
-                }
-                else {
-                    link.properties = hyperlinkProperties;
-                }
-            }
-        }
-          
         // Convert markdown hyperlinks to InDesign hyperlinks.
-          
+        
         myRegexp = /\[[^]]+]\([^)]+\)/;
         app.findGrepPreferences.findWhat = myRegexp.toString().slice(1,-1);
         var myLinkTexts = textObj.findGrep(); 
-        for (var i=0; i < myLinkTexts.length; i++) {
-            myLinkText = myLinkTexts[i];
-            var myRedundantHyperlinks;
-                
-            // Get rid of any Indesign hyperlinks inside markdown hyperlinks,
-            // if that boolean parameter is true.
-                
-            if (killRedundantIndesignHyperlinks) {
-                // myRedundantHyperlinks should come out null if we have already removed ALL hyperlinks.
-                    
-                myRedundantHyperlinks = util.findHyperlinks( myLinkText );
-                if (myRedundantHyperlinks.length > 0) {
-                    for (var r=myRedundantHyperlinks.length-1; r>=0; r--) {
-                        util.removeHyperlinkDeep(myRedundantHyperlinks[r]);
-                    }
-                }
-            }
-          
-            // This "try" statement will fail and be ignored
-            // if the text in question is already part of a hyperlink.
-            // Which of course shouldn't happen because we would just
-            // have removed the source in the loop above, but just in case. 
         
+        util.forEach( myLinkTexts, function( myLinkText ) {
+            
+            // Get rid of any Indesign hyperlinks inside markdown hyperlinks.
+            // We're assuming the user wants to override the former with the latter.
+
+            var myRedundantHyperlinks = util.findHyperlinks( myLinkText );
+            util.forEach( myRedundantHyperlinks, util.removeHyperlinkDeep );
+          
             // Create InDesign hyperlink from markdown code.
             
-            myHyperlink = null;
-            try  {
-                var myHyperlinkSourceText = myDoc.hyperlinkTextSources.add (myLinkText); 
-                var myHyperlinkDestURL = myDoc.hyperlinkURLDestinations.add();
-                myHyperlink = myDoc.hyperlinks.add(myHyperlinkSourceText, myHyperlinkDestURL); 
-                myHyperlink.properties = hyperlinkProperties;
-                myHyperlink.destination.destinationURL = myLinkText.contents.match (/\(([^)]+)\)/) [1];
-              
-                // Restore escaped characters in URL
-              
-                myHyperlink.destination.destinationURL = util.multiReplace (myHyperlink.destination.destinationURL, 
-                                                                            escapedChars.getRestoringPairs());
-            }
-            catch (e) {}  // ignore errors
-            
+            var myHyperlinkSourceText = myDoc.hyperlinkTextSources.add (myLinkText);  
+            var myHyperlinkDest = myDoc.hyperlinkURLDestinations.add({name: Math.random().toString(), hidden: true});
+            myHyperlink = myDoc.hyperlinks.add(myHyperlinkSourceText, myHyperlinkDest); 
+            myHyperlink.properties = hyperlinkProperties;
+            myHyperlink.destination.destinationURL = myLinkText.contents.match (/\(([^)]+)\)/) [1];
+          
+            // Restore escaped characters in URL
+          
+            myHyperlink.destination.destinationURL = util.multiReplace (myHyperlink.destination.destinationURL, 
+                                                                        escapedChars.getRestoringPairs());
             // Remove URL and brackets from the text itself.
             
             myRegexp = /\[([^]]+)].*/;
             app.findGrepPreferences.findWhat = myRegexp.toString().slice(1,-1);
             app.changeGrepPreferences.changeTo = "$1";
             myLinkText.changeGrep();
-        }
+            
+        });
+          
+        // convert to our format and get rid of destination sharing.
+        
+        myFoundHyperlinks = util.findHyperlinks( textObj );
+        util.forEach( myFoundHyperlinks, function( link ) {
+            link.properties = hyperlinkProperties;
+            util.changeDestinationSharing( link, false );
+        });
           
         // Now do other markdown processing.  Bold and italic, blockquote and poetry, 
         // maybe headings.  TO BE DONE.
