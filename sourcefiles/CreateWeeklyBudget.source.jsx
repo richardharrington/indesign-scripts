@@ -10,7 +10,7 @@ var NOTIFICATION_EMAIL = "ferst@forward.com";
 var TECH_SUPPORT_CONTACT = "Richard";
 var COLLOQUIAL_NAME_OF_STORY_BUDGET_FOLDER = "the story budget folder on the English server";
 var PUBLICATION_DAY = "Friday";
-var WEEKS_IN_THE_FUTURE = 8;
+var WEEKS_IN_THE_FUTURE = 5;
 
 
 // CONSTANTS
