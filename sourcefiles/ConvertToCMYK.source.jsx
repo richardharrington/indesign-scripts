@@ -27,7 +27,6 @@ var psConvertToCMYK,
     errorHandler;
 
 psConvertToCMYK = function( filePath ) {
-    throw new Error("this is a test error");
     
     var addCMYKToName = function( name ) {
         return name.slice( 0, name.lastIndexOf( '.' )) + ' cmyk.psd';
@@ -50,13 +49,12 @@ psConvertToCMYK = function( filePath ) {
 };
 
 convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
-  throw new Error("Is anybody out there?");
-  var bt = new BridgeTalk();
-  bt.target = appSpecifier;
-  bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
-  bt.onResult = success;
-  bt.onError = failure;
-  bt.send();
+    var bt = new BridgeTalk();
+    bt.target = appSpecifier;
+    bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
+    bt.onResult = success;
+    bt.onError = failure;
+    bt.send();
 };
 
 targetApp = BridgeTalk.getSpecifier( "photoshop");
@@ -71,6 +69,10 @@ if (!util.selectionIs( "Image", "Rectangle") ) {
 sel = app.selection[0];
 image = (util.selectionIs( "Image" )) ? sel : sel.images[0];
 
+if (image.itemLink.status === LinkStatus.LINK_MISSING) {
+    util.errorExit( "Link missing. Please relink this image and try again." );
+}
+
 imageFilePath = image.itemLink.filePath;
 fileExt = imageFilePath.substring( imageFilePath.lastIndexOf( '.' )).slice( 1 );
 
@@ -79,7 +81,7 @@ if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS, false )) {
     util.errorExit( "This doesn't look like an image file to me. Maybe the file extension is wrong. Please do this conversion manually." );
 }
 
-// imports the converted image into InDesign.
+// callback imports the converted image into InDesign.
 
 callback = (function( img ) {
     return function( resultObj ) {
@@ -88,22 +90,16 @@ callback = (function( img ) {
     };
 })( image );
 
+errorHandler = (function( img ) { // might need to pass the img some day; don't need it now.
+    return function( errorObj ) {
+        alert("Photoshop suffered a grievous error attempting to process the following file:\n" + img.itemLink.name);
+    };
+})( image );
 
-errorHandler = function( e ) {
-  var errorCode = parseInt (e.headers ["Error-Code"]); 
-  throw new Error (errorCode, e.body);
-};
-
-try {
-  convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
-  $.writeln("Is this even working?");
-} catch( e ) {
-  alert (e);
-}
-
-
+convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
 
 
 
 // That's all folks.
+
 
