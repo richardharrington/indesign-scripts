@@ -70,19 +70,23 @@ if (!FORWARD.Util) {
             return Object.prototype.toString.call( obj ) === "[object Array]";
         };
         
-        util.selectionIs = function( /* further argument list of valid constructor names for the selection */) {
-            
-              var sel = app.selection[0];
+        util.selectionIs = function() { /* optional first argument: specific selection (which otherwise defaults to selection[0]) */ 
+                                        /* further argument list of valid constructor names for the selection */ 
+              alert("aaaaa");
+              var args = Array.prototype.slice.call( arguments );
+              var sel = (args[0].constructor.name === 'Selection') ? args.shift() : selection[0];
               
+              alert( "sel: " + sel.constructor.name + ", arguments[0]: " + arguments[0]);
+                            
               if (!sel || !sel.isValid) {
                   return false;
               }
             
               var i, 
-                  len = arguments.length;
+                  len = args.length;
               
               for ( i = 0; i < len; i++) {
-                  if (arguments[i] === sel.constructor.name) {
+                  if (args[i] === sel.constructor.name) {
                       return true;
                   }
               }
