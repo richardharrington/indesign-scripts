@@ -23,7 +23,8 @@ var sel,
 
 var psConvertToCMYK,
     convertInPhotoshop,
-    callback;
+    callback,
+    errorHandler;
 
 psConvertToCMYK = function( filePath ) {
     
@@ -47,12 +48,13 @@ psConvertToCMYK = function( filePath ) {
     return newFilePath;
 };
 
-convertFile = function( appSpecifier, conversion, filePath, returnHandler ) {
-  var bt = new BridgeTalk();
-  bt.target = appSpecifier;
-  bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
-  bt.onResult = returnHandler;
-  bt.send();
+convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
+    var bt = new BridgeTalk();
+    bt.target = appSpecifier;
+    bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
+    bt.onResult = success;
+    bt.onError = failure;
+    bt.send();
 };
 
 targetApp = BridgeTalk.getSpecifier( "photoshop");
@@ -66,6 +68,10 @@ if (!util.selectionIs( "Image", "Rectangle") ) {
 
 sel = app.selection[0];
 image = (util.selectionIs( "Image" )) ? sel : sel.images[0];
+
+if (image.itemLink.status === LinkStatus.LINK_MISSING) {
+    util.errorExit( "Link missing. Please relink this image and try again." );
+}
 
 imageFilePath = image.itemLink.filePath;
 fileExt = imageFilePath.substring( imageFilePath.lastIndexOf( '.' )).slice( 1 );
@@ -84,9 +90,16 @@ callback = (function( img ) {
     };
 })( image );
 
-convertFile( targetApp, psConvertToCMYK, imageFilePath, callback );
+errorHandler = (function( img ) { // might need to pass the img some day; don't need it now.
+    return function( errorObj ) {
+        alert("Photoshop suffered a grievous error attempting to process the following file:\n" + img.itemLink.name);
+    };
+})( image );
+
+convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
 
 
 
 // That's all folks.
+
 
