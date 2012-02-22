@@ -23,9 +23,11 @@ var sel,
 
 var psConvertToCMYK,
     convertInPhotoshop,
-    callback;
+    callback,
+    errorHandler;
 
 psConvertToCMYK = function( filePath ) {
+    throw new Error("this is a test error");
     
     var addCMYKToName = function( name ) {
         return name.slice( 0, name.lastIndexOf( '.' )) + ' cmyk.psd';
@@ -47,11 +49,13 @@ psConvertToCMYK = function( filePath ) {
     return newFilePath;
 };
 
-convertFile = function( appSpecifier, conversion, filePath, returnHandler ) {
+convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
+  throw new Error("Is anybody out there?");
   var bt = new BridgeTalk();
   bt.target = appSpecifier;
   bt.body = conversion.toSource() + "(" + filePath.toSource() + ");";
-  bt.onResult = returnHandler;
+  bt.onResult = success;
+  bt.onError = failure;
   bt.send();
 };
 
@@ -75,7 +79,7 @@ if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS, false )) {
     util.errorExit( "This doesn't look like an image file to me. Maybe the file extension is wrong. Please do this conversion manually." );
 }
 
-// callback imports the converted image into InDesign.
+// imports the converted image into InDesign.
 
 callback = (function( img ) {
     return function( resultObj ) {
@@ -84,7 +88,20 @@ callback = (function( img ) {
     };
 })( image );
 
-convertFile( targetApp, psConvertToCMYK, imageFilePath, callback );
+
+errorHandler = function( e ) {
+  var errorCode = parseInt (e.headers ["Error-Code"]); 
+  throw new Error (errorCode, e.body);
+};
+
+try {
+  convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
+  $.writeln("Is this even working?");
+} catch( e ) {
+  alert (e);
+}
+
+
 
 
 
