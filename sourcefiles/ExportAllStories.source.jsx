@@ -64,7 +64,9 @@
   // Change all paragraphs to 'Keep all lines together'.
   for (p = myTargetStory.paragraphs.length - 1; p >= 0; p--) {
     myTargetStory.paragraphs[p].keepAllLinesTogether = true;
-    $.writeln('keepAllLinesTogether: ' + myTargetStory.paragraphs[p].keepAllLinesTogether + ': ' + myTargetStory.paragraphs[p].contents);
+    
+  //  debugging:
+  //  $.writeln('keepAllLinesTogether: ' + myTargetStory.paragraphs[p].keepAllLinesTogether + ': ' + myTargetStory.paragraphs[p].contents);
   }
 
   function error_exit (message) {
