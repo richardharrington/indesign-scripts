@@ -78,24 +78,29 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
 }
 
 // Extract an array of images from the selection collection, leaving non-image items behind.
-util.forEach( app.selection, function( sel ) {
-    if (util.selectionIs( sel, "Image", "Rectangle") ) {
-        alert(sel.constructor.name);
-        imageArray.push( util.selectionIs( sel, "Image" ) ? sel : sel.images[0] )
+// First check for images, then check for image containers (making sure to skip empty image containers).
+util.forEach( app.selection, function( sel, i ) {
+    if (util.selectionIs( i, "Image" )) {
+        imageArray.push( sel );
+    } else if (util.selectionIs( i, "Rectangle" ) && sel.images.length > 0) {
+        imageArray.push( sel.images[0] );
     }
 });
-
+    
+if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box and try again." );    
+    
+    
 // Make sure the links are all intact before proceeding.
 util.forEach( imageArray, function( img ) {
-    if (image.itemLink.status === LinkStatus.LINK_MISSING) {
+    if (img.itemLink.status === LinkStatus.LINK_MISSING) {
         brokenLinkImageArray.push( img );
     }
 });
 
 if (brokenLinkImageArray.length > 0) {
     str = "The links to the following images were broken; "
-        + "please fix them or just try again without them "
-        + "as part of your selection: \n";
+        + "please fix the links or just try again without these "
+        + "images as part of your selection: \n";
     
     util.forEach( brokenLinkImageArray, function( img ) {
         str += img.itemLink.name + "\n";

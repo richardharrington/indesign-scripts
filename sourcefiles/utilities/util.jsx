@@ -70,27 +70,29 @@ if (!FORWARD.Util) {
             return Object.prototype.toString.call( obj ) === "[object Array]";
         };
         
-        util.selectionIs = function() { /* optional first argument: specific selection (which otherwise defaults to selection[0]) */ 
-                                        /* further argument list of valid constructor names for the selection */ 
-              alert("aaaaa");
-              var args = Array.prototype.slice.call( arguments );
-              var sel = (args[0].constructor.name === 'Selection') ? args.shift() : selection[0];
+        
+        // Takes an optional first argument which is a selection index. (Default is 0).
+        // The remaining arguments are constructor names. The function checks to see
+        // whether the selection's constructor matches any of those names.
+        
+        util.selectionIs = function() { 
+            var args = Array.prototype.slice.call( arguments );
+            var selIndex = (typeof args[0] === 'number') ? args.shift() : 0;
+
+            var sel = app.selection[selIndex];
+            var i;
+            var len = args.length;
               
-              alert( "sel: " + sel.constructor.name + ", arguments[0]: " + arguments[0]);
-                            
-              if (!sel || !sel.isValid) {
-                  return false;
-              }
+            if (!sel || !sel.isValid) {
+                return false;
+            }
             
-              var i, 
-                  len = args.length;
-              
-              for ( i = 0; i < len; i++) {
-                  if (args[i] === sel.constructor.name) {
-                      return true;
-                  }
-              }
-              return false;
+            for ( i = 0; i < len; i++) {
+                if (args[i] === sel.constructor.name) {
+                    return true;
+                }
+            }
+            return false;
         }
                 
         util.reverseString = function (str) {
