@@ -33,8 +33,10 @@ psConvertToCMYK = function( filePath ) {
     var newFilePath = addCMYKToName( filePath );
     var newFile = File( newFilePath );
     
-    /* Add another " cmyk" to the name if there's one already there. */
-    if (newFile.exists) {
+    /* Add another " cmyk" to the name if there's one already there. 
+       Actually, keep checking until the file doesn't exist, in case there's 
+       a bunch of cmyk's at the end of the name. */
+    while (newFile.exists) {
         newFilePath = addCMYKToName( newFilePath );
         newFile = File( newFilePath );
     }
@@ -69,7 +71,6 @@ createErrorHandler = function( img ) {
     };
 };
 
-
 // -------------------------------------------------------
 
 targetApp = BridgeTalk.getSpecifier( "photoshop" );
@@ -79,16 +80,16 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
 
 // Extract an array of images from the selection collection, leaving non-image items behind.
 // First check for images, then check for image containers (making sure to skip empty image containers).
-util.forEach( app.selection, function( sel, i ) {
-    if (util.selectionIs( i, "Image" )) {
+util.forEach( app.selection, function( sel ) {
+    if (sel.constructor.name === "Image") {
         imageArray.push( sel );
-    } else if (util.selectionIs( i, "Rectangle" ) && sel.images.length > 0) {
+    } else if (sel.constructor.name === "Rectangle") {
         imageArray.push( sel.images[0] );
     }
+    $.writeln(sel.constructor.name);
 });
     
-if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box and try again." );    
-    
+if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box and try again." );
     
 // Make sure the links are all intact before proceeding.
 util.forEach( imageArray, function( img ) {
