@@ -83,7 +83,7 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
 util.forEach( app.selection, function( sel ) {
     if (sel.constructor.name === "Image") {
         imageArray.push( sel );
-    } else if (sel.constructor.name === "Rectangle") {
+    } else if (sel.constructor.name === "Rectangle" && sel.images.length > 0) {
         imageArray.push( sel.images[0] );
     }
     $.writeln(sel.constructor.name);
