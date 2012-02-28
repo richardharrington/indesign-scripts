@@ -15,12 +15,15 @@ var util = FORWARD.Util;
 var targetApp,
     imageArray = [],
     brokenLinkImageArray = [],
+    failedInPhotoshop = [];
+    returnCounter = 0;
     str;
 
 var psConvertToCMYK,
     convertInPhotoshop,
     createCallback,
-    createErrorHandler;
+    createErrorHandler,
+    report;
     
 // A function designed to be run in Photoshop. 
 // It gets passed to BridgeTalk as a string, using the .toSource() method.
@@ -57,17 +60,31 @@ convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
     bt.send();
 };
 
+// finalReport is to be run after all callbacks have returned.
+report = function() {
+    returnCounter += 1;
+    if (returnCounter === imageArray.length) {
+        var str = "Photoshop suffered a grievous error attempting to process the following file(s):\n";
+        util.forEach( failedInPhotoshop, function( failedFileName ) {
+            str += failedFileName + "\n\n";
+        });
+        if (failedInPhotoshop.length > 0) alert(str);
+    }
+};
+
 // callbacks created by createCallback import converted images into InDesign.
 createCallback = function( img ) {
     return function( resultObj ) {
         var path = resultObj.body;
-        img.place( path );        
+        img.place( path );
+        report();
     };
 };
 
 createErrorHandler = function( img ) { 
     return function( errorObj ) {
-        alert("Photoshop suffered a grievous error attempting to process the following file:\n" + img.itemLink.name);
+        failedInPhotoshop.push( img.itemLink.name );
+        report();
     };
 };
 
@@ -86,7 +103,6 @@ util.forEach( app.selection, function( sel ) {
     } else if (sel.constructor.name === "Rectangle" && sel.images.length > 0) {
         imageArray.push( sel.images[0] );
     }
-    $.writeln(sel.constructor.name);
 });
     
 if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box and try again." );
@@ -116,8 +132,6 @@ util.forEach( imageArray, function( image ) {
     var imageFilePath = image.itemLink.filePath;
     convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
 });
-
-
 
 
 // That's all folks.
