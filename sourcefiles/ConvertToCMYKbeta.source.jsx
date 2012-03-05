@@ -16,6 +16,7 @@ var targetApp,
     imageArray = [],
     brokenLinkImageArray = [],
     failedInPhotoshop = [],
+    succeededInPhotoshop = [],
     returnCounter = 0,
     str;
 
@@ -60,32 +61,47 @@ convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
     bt.send();
 };
 
-// This function 'report' is run each time a callback returns, but only after the last
-// one returns does it actually issue its report.
+// This function 'report' only issues a report if there was actually problems in Photoshop. Problems 
+// that have been identified earlier in InDesign will have caused error messages and aborted 
+// the script earlier in the execution anyway.
 report = function() {
-    returnCounter += 1;
-    if (returnCounter === imageArray.length) {
-        var str = "Photoshop suffered a grievous error attempting to process the following file(s):\n";
-        util.forEach( failedInPhotoshop, function( failedFileName ) {
-            str += failedFileName + "\n\n";
+    var str;
+    
+    if (failedInPhotoshop.length > 0) {
+        str = "Photoshop suffered a grievous error attempting to process the following file(s):\n\n";
+        util.forEach( failedInPhotoshop, function( name ) {
+            str += name + '\n';
         });
-        if (failedInPhotoshop.length > 0) alert(str);
+        if (succeededInPhotoshop.length > 0) {
+            str += "\n" + "The following files were processed just fine, however:\n\n";
+            util.forEach( succeededInPhotoshop, function( name ) {
+                str += name + '\n';
+            });            
+        }
+        alert(str);
     }
 };
 
-// callbacks created by createCallback import converted images into InDesign.
+// callbacks created by these next two functions either import converted images into InDesign or log unsuccessful attempts.
+// The also log the successful ones in case we have to make an error report
+// (We don't actually make a report if everything was successful, but if there were any 
+// problems, we want to have a list of both the good and the bad, so we can say, "these images failed, but on
+// the bright side, these other images succeeded.")
 createCallback = function( img ) {
     return function( resultObj ) {
+        succeededInPhotoshop.push( img.itemLink.name );
         var path = resultObj.body;
         img.place( path );
-        report();
+        returnCounter += 1;
+        if (returnCounter === imageArray.length) report();
     };
 };
 
 createErrorHandler = function( img ) { 
     return function( errorObj ) {
         failedInPhotoshop.push( img.itemLink.name );
-        report();
+        returnCounter += 1;
+        if (returnCounter === imageArray.length) report();
     };
 };
 
