@@ -15,8 +15,8 @@ var util = FORWARD.Util;
 var targetApp,
     imageArray = [],
     brokenLinkImageArray = [],
-    failedInPhotoshop = [];
-    returnCounter = 0;
+    failedInPhotoshop = [],
+    returnCounter = 0,
     str;
 
 var psConvertToCMYK,

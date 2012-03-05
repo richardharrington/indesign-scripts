@@ -62,12 +62,22 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
     util.errorExit( 'Please start Photoshop and then try again.' );
 }
 
-if (!util.selectionIs( "Image", "Rectangle") ) {
-    util.errorExit( "Please select an image and try again." );
-}
+if (app.selection.length < 1) util.errorExit( "Please select something and try again." );
+if (app.selection.length > 1) util.errorExit( "Please select only one thing and try again." );
+if (!util.selectionIs( "Image", "Rectangle", "Oval", "Polygon" ) ) util.errorExit( "Please select an image and try again." );
 
+// If the selection is a Rectangle, set variable 'image' to its image, unless
+// it's empty and has no image, in which case abort.
 sel = app.selection[0];
-image = (util.selectionIs( "Image" )) ? sel : sel.images[0];
+if (util.selectionIs( "Image" )) {
+    image = sel;
+} else { // selection is a Rectangle, Oval or Polygon
+    if (sel.images.length === 0) {
+        util.errorExit( "Please select a non-empty image and try again." );
+    } else {
+        image = sel.images[0];
+    }
+}
 
 if (image.itemLink.status === LinkStatus.LINK_MISSING) {
     util.errorExit( "Link missing. Please relink this image and try again." );
