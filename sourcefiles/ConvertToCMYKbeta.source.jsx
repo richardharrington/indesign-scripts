@@ -97,16 +97,15 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
 }
 
 // Extract an array of images from the selection collection, leaving non-image items behind.
-// First check for images, then check for image containers (making sure to skip empty image containers).
+// First check for images, then check for image containers (making sure to skip empty image containers
+// and images that are already CMYK).
 util.forEach( app.selection, function( sel ) {
-    if (sel.constructor.name === "Image") {
-        imageArray.push( sel );
-    } else if (util.isIn( sel.constructor.name, ["Rectangle", "Oval", "Polygon"] ) && sel.images.length > 0) {
-        imageArray.push( sel.images[0] );
-    }
+    var image = (sel.constructor.name === "Image") ? sel : 
+        (util.isIn( sel.constructor.name, ["Rectangle", "Oval", "Polygon"] ) && sel.images.length > 0) ? sel.images[0] : null;
+    if (image !== null && image.space !== 'CMYK') imageArray.push( image );
 });
     
-if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box and try again." );
+if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box to be converted to CMYK and try again." );
     
 // Make sure the links are all intact before proceeding.
 util.forEach( imageArray, function( img ) {
