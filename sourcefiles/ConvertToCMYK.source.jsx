@@ -12,21 +12,20 @@ the original picture with the new one in InDesign.
 
 var util = FORWARD.Util;
 
-var targetApp,
-    imageArray = [],
-    brokenLinkImageArray = [],
-    failedInPhotoshop = [];
-    returnCounter = 0;
-    str;
+var ACCEPTED_FILE_EXTENSIONS = ['tif', 'tiff', 'jpg', 'jpeg', 'png', 'gif', 'psd'];
+
+var sel, 
+    targetApp,
+    image, 
+    imageFilePath, 
+    newImageFilePath,
+    fileExt;
 
 var psConvertToCMYK,
     convertInPhotoshop,
-    createCallback,
-    createErrorHandler,
-    report;
-    
-// A function designed to be run in Photoshop. 
-// It gets passed to BridgeTalk as a string, using the .toSource() method.
+    callback,
+    errorHandler;
+
 psConvertToCMYK = function( filePath ) {
     
     var addCMYKToName = function( name ) {
@@ -36,10 +35,8 @@ psConvertToCMYK = function( filePath ) {
     var newFilePath = addCMYKToName( filePath );
     var newFile = File( newFilePath );
     
-    /* Add another " cmyk" to the name if there's one already there. 
-       Actually, keep checking until the file doesn't exist, in case there's 
-       a bunch of cmyk's at the end of the name. */
-    while (newFile.exists) {
+    /* Add another " cmyk" to the name if there's one already there. */
+    if (newFile.exists) {
         newFilePath = addCMYKToName( newFilePath );
         newFile = File( newFilePath );
     }
@@ -60,78 +57,47 @@ convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
     bt.send();
 };
 
-// finalReport is to be run after all callbacks have returned.
-report = function() {
-    returnCounter += 1;
-    if (returnCounter === imageArray.length) {
-        var str = "Photoshop suffered a grievous error attempting to process the following file(s):\n";
-        util.forEach( failedInPhotoshop, function( failedFileName ) {
-            str += failedFileName + "\n\n";
-        });
-        if (failedInPhotoshop.length > 0) alert(str);
-    }
-};
-
-// callbacks created by createCallback import converted images into InDesign.
-createCallback = function( img ) {
-    return function( resultObj ) {
-        var path = resultObj.body;
-        img.place( path );
-        report();
-    };
-};
-
-createErrorHandler = function( img ) { 
-    return function( errorObj ) {
-        failedInPhotoshop.push( img.itemLink.name );
-        report();
-    };
-};
-
-// -------------------------------------------------------
-
-targetApp = BridgeTalk.getSpecifier( "photoshop" );
+targetApp = BridgeTalk.getSpecifier( "photoshop");
 if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
     util.errorExit( 'Please start Photoshop and then try again.' );
 }
 
-// Extract an array of images from the selection collection, leaving non-image items behind.
-// First check for images, then check for image containers (making sure to skip empty image containers).
-util.forEach( app.selection, function( sel ) {
-    if (sel.constructor.name === "Image") {
-        imageArray.push( sel );
-    } else if (sel.constructor.name === "Rectangle" && sel.images.length > 0) {
-        imageArray.push( sel.images[0] );
-    }
-});
-    
-if (imageArray.length === 0) util.errorExit( "Please select at least one image or image box and try again." );
-    
-// Make sure the links are all intact before proceeding.
-util.forEach( imageArray, function( img ) {
-    if (img.itemLink.status === LinkStatus.LINK_MISSING) {
-        brokenLinkImageArray.push( img );
-    }
-});
-
-if (brokenLinkImageArray.length > 0) {
-    str = "The links to the following images were broken; "
-        + "please fix the links or just try again without these "
-        + "images as part of your selection: \n";
-    
-    util.forEach( brokenLinkImageArray, function( img ) {
-        str += img.itemLink.name + "\n";
-    });
-    util.errorExit( str );
+if (!util.selectionIs( "Image", "Rectangle") ) {
+    util.errorExit( "Please select an image and try again." );
 }
 
-// Error-handling finished. Now actually do the thing.
-util.forEach( imageArray, function( image ) {
-    var callback = createCallback( image );
-    var errorHandler = createErrorHandler( image );
-    var imageFilePath = image.itemLink.filePath;
-    convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
-});
+sel = app.selection[0];
+image = (util.selectionIs( "Image" )) ? sel : sel.images[0];
+
+if (image.itemLink.status === LinkStatus.LINK_MISSING) {
+    util.errorExit( "Link missing. Please relink this image and try again." );
+}
+
+imageFilePath = image.itemLink.filePath;
+fileExt = imageFilePath.substring( imageFilePath.lastIndexOf( '.' )).slice( 1 );
+
+// Check file extensions ('false' means a case-insensitive check)
+if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS, false )) {
+    util.errorExit( "This doesn't look like an image file to me. Maybe the file extension is wrong. Please do this conversion manually." );
+}
+
+// callback imports the converted image into InDesign.
+
+callback = (function( img ) {
+    return function( resultObj ) {
+        var path = resultObj.body;
+        img.place( path );        
+    };
+})( image );
+
+errorHandler = (function( img ) { // might need to pass the img some day; don't need it now.
+    return function( errorObj ) {
+        alert("Photoshop suffered a grievous error attempting to process the following file:\n" + img.itemLink.name);
+    };
+})( image );
+
+convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
+
 
 
 // That's all folks.
