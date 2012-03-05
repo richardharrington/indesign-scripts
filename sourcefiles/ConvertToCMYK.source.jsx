@@ -12,20 +12,36 @@ the original picture with the new one in InDesign.
 
 var util = FORWARD.Util;
 
-var ACCEPTED_FILE_EXTENSIONS = ['tif', 'tiff', 'jpg', 'jpeg', 'png', 'gif', 'psd'];
-
-var sel, 
-    targetApp,
-    image, 
-    imageFilePath, 
-    newImageFilePath,
-    fileExt;
+var targetApp,
+    returnCounter = 0,
+    imagesToBeProcessed = [],
+    imageNames = {
+        succeeded: {
+            array: [],
+            reportMessage: "The following images were converted successfully to CMYK:"
+        },
+        alreadyCMYK: {
+            array: [],
+            reportMessage: "The following images were NOT converted because they were already CMYK:"
+        },
+        linkIsBroken: {
+            array: [],
+            reportMessage: "The following images were NOT converted because their links were broken:"
+        },
+        failedInPhotoshop: {
+            array: [],
+            reportMessage: "The following images were NOT converted because Photoshop failed to convert them:"
+        }
+    };
 
 var psConvertToCMYK,
     convertInPhotoshop,
-    callback,
-    errorHandler;
-
+    createCallback,
+    createErrorHandler,
+    report;
+    
+// A function designed to be run in Photoshop. 
+// It gets passed to BridgeTalk as a string, using the .toSource() method.
 psConvertToCMYK = function( filePath ) {
     
     var addCMYKToName = function( name ) {
@@ -35,8 +51,10 @@ psConvertToCMYK = function( filePath ) {
     var newFilePath = addCMYKToName( filePath );
     var newFile = File( newFilePath );
     
-    /* Add another " cmyk" to the name if there's one already there. */
-    if (newFile.exists) {
+    /* Add another " cmyk" to the name if there's one already there. 
+       Actually, keep checking until the file doesn't exist, in case there's 
+       a bunch of cmyk's at the end of the name. */
+    while (newFile.exists) {
         newFilePath = addCMYKToName( newFilePath );
         newFile = File( newFilePath );
     }
@@ -57,57 +75,103 @@ convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
     bt.send();
 };
 
-targetApp = BridgeTalk.getSpecifier( "photoshop");
+// Makes the report after all the callbacks have returned.
+report = function() {
+    var result, str;
+    if ((imageNames.alreadyCMYK.array.length === 0) &&
+            (imageNames.linkIsBroken.array.length === 0) &&
+            (imageNames.failedInPhotoshop.array.length === 0)) {
+                str = "All images successfully converted to CMYK.";
+    } else {
+        str = "ConvertToCMYK report:"; 
+        for (var k in imageNames) {
+            result = imageNames[k];
+            if (result.array.length > 0) {
+                str += "\n\n" + result.reportMessage + "\n\n";
+                util.forEach(result.array, function( name ) {
+                    str += name + "\n";
+                });            
+            }
+        }
+    }
+    alert(str);
+};
+
+// callbacks created by these next two functions either import converted images into InDesign or log unsuccessful attempts.
+// The also log the successful ones in case we have to make an error report
+// (We don't actually make a report if everything was successful, but if there were any 
+// problems, we want to have a list of both the good and the bad, so we can say, "these images failed, but on
+// the bright side, these other images succeeded.")
+createCallback = function( img ) {
+    return function( resultObj ) {
+        imageNames.succeeded.array.push( img.itemLink.name );
+        var path = resultObj.body;
+        img.place( path );
+        returnCounter += 1;
+        if (returnCounter === imagesToBeProcessed.length) report();
+    };
+};
+
+createErrorHandler = function( img ) { 
+    return function( errorObj ) {
+        imageNames.failedInPhotoshop.array.push( img.itemLink.name );
+        returnCounter += 1;
+        if (returnCounter === imagesToBeProcessed.length) report();
+    };
+};
+
+// -------------------------------------------------------
+
+targetApp = BridgeTalk.getSpecifier( "photoshop" );
 if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
     util.errorExit( 'Please start Photoshop and then try again.' );
 }
 
-if (app.selection.length < 1) util.errorExit( "Please select something and try again." );
-if (app.selection.length > 1) util.errorExit( "Please select only one thing and try again." );
-if (!util.selectionIs( "Image", "Rectangle", "Oval", "Polygon" ) ) util.errorExit( "Please select an image and try again." );
+// Extract images from the selection collection, leaving non-image items behind. 
+// First check for images, then check for image containers, making sure to skip 
+// empty image containers.
 
-// If the selection is a Rectangle, set variable 'image' to its image, unless
-// it's empty and has no image, in which case abort.
-sel = app.selection[0];
-if (util.selectionIs( "Image" )) {
-    image = sel;
-} else { // selection is a Rectangle, Oval or Polygon
-    if (sel.images.length === 0) {
-        util.errorExit( "Please select a non-empty image and try again." );
+// Finally, assign all the images to different arrays: linkIsBroken, alreadyCMYK, and toBeProcessed.
+util.forEach( app.selection, function( sel ) {
+    var img = null;
+    if (sel.constructor.name === "Image") {
+        img = sel;
+    } else if (util.isIn( sel.constructor.name, ["Rectangle", "Oval", "Polygon"] ) && sel.images.length > 0) {
+        img = sel.images[0];
+    }
+        
+    if (img !== null) {
+        if (img.itemLink.status === LinkStatus.LINK_MISSING) {
+            imageNames.linkIsBroken.array.push( img.itemLink.name );
+        } else if (img.space === 'CMYK') {
+            imageNames.alreadyCMYK.array.push( img.itemLink.name );
+        } else {
+            imagesToBeProcessed.push( img );
+        }
+    }
+});
+
+// What to do if there's no images to be processed:
+// 1) If there's nothing else to report at all, just exit.
+// 2) If there are other things to report (like broken links or files already CMYK),
+// then run the report function.
+if (imagesToBeProcessed.length === 0) {
+    if ((imageNames.linkIsBroken.array.length === 0) &&
+        (imageNames.alreadyCMYK.array.length === 0)) {
+            util.errorExit( "Please select at least one image or image box and try again." );
     } else {
-        image = sel.images[0];
+        report();
     }
 }
-
-if (image.itemLink.status === LinkStatus.LINK_MISSING) {
-    util.errorExit( "Link missing. Please relink this image and try again." );
-}
-
-imageFilePath = image.itemLink.filePath;
-fileExt = imageFilePath.substring( imageFilePath.lastIndexOf( '.' )).slice( 1 );
-
-// Check file extensions ('false' means a case-insensitive check)
-if (!util.isIn( fileExt, ACCEPTED_FILE_EXTENSIONS, false )) {
-    util.errorExit( "This doesn't look like an image file to me. Maybe the file extension is wrong. Please do this conversion manually." );
-}
-
-// callback imports the converted image into InDesign.
-
-callback = (function( img ) {
-    return function( resultObj ) {
-        var path = resultObj.body;
-        img.place( path );        
-    };
-})( image );
-
-errorHandler = (function( img ) { // might need to pass the img some day; don't need it now.
-    return function( errorObj ) {
-        alert("Photoshop suffered a grievous error attempting to process the following file:\n" + img.itemLink.name);
-    };
-})( image );
-
-convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
-
+    
+// Error-handling finished. Now actually do the thing.
+// (It won't happen if the array is empty).
+util.forEach( imagesToBeProcessed, function( img ) {
+    var callback = createCallback( img );
+    var errorHandler = createErrorHandler( img );
+    var imageFilePath = img.itemLink.filePath;
+    convertFile( targetApp, psConvertToCMYK, imageFilePath, callback, errorHandler );
+});
 
 
 // That's all folks.
