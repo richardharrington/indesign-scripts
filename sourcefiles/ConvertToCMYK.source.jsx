@@ -30,7 +30,7 @@ var targetApp,
         },
         failedInPhotoshop: {
             array: [],
-            reportMessage: "The following images were NOT converted because Photoshop failed to convert them:"
+            reportMessage: "The following images were NOT converted because Photoshop suffered an error while trying to convert them:"
         }
     };
 
@@ -76,12 +76,13 @@ convertFile = function( appSpecifier, conversion, filePath, success, failure ) {
 };
 
 // Makes the report after all the callbacks have returned.
+// Does a generic success message if there were no broken links or errors in Photoshop
+// (meaning there were only successful conversions and files that were ignored
+// because they were already CMYK.)
 report = function() {
     var result, str;
-    if ((imageNames.alreadyCMYK.array.length === 0) &&
-            (imageNames.linkIsBroken.array.length === 0) &&
-            (imageNames.failedInPhotoshop.array.length === 0)) {
-                str = "All images successfully converted to CMYK.";
+    if ((imageNames.linkIsBroken.array.length === 0) && (imageNames.failedInPhotoshop.array.length === 0)) {
+        str = "All selected images that were not already CMYK were successfully converted to CMYK.";
     } else {
         str = "ConvertToCMYK report:"; 
         for (var k in imageNames) {
@@ -132,6 +133,7 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
 // empty image containers.
 
 // Finally, assign all the images to different arrays: linkIsBroken, alreadyCMYK, and toBeProcessed.
+// Note that the broken-link check has higher priority than the already-CMYK check.
 util.forEach( app.selection, function( sel ) {
     var img = null;
     if (sel.constructor.name === "Image") {
