@@ -134,16 +134,15 @@ if (!targetApp || !BridgeTalk.isRunning( targetApp )) {
 
 // Finally, assign all the images to different arrays: linkIsBroken, alreadyCMYK, and toBeProcessed.
 // Note that the broken-link check has higher priority than the already-CMYK check.
-
-// This search digs down into groups and image containers only at the top level, by invoking the processItem
-// function on all the page items returned by the allPageItems property of each group or image container. This
-// property will return groups and image containers too, in addition to their contents, so we don't want to 
-// use a traditional recursive pattern, because it will get everything multiple times.
-
-var processItem = function( item ) {
-    var img;
-    if (item.constructor.name === "Image") {
-        img = item;
+util.forEach( app.selection, function( sel ) {
+    var img = null;
+    if (sel.constructor.name === "Image") {
+        img = sel;
+    } else if (util.isIn( sel.constructor.name, ["Rectangle", "Oval", "Polygon"] ) && sel.images.length > 0) {
+        img = sel.images[0];
+    }
+        
+    if (img !== null) {
         if (img.itemLink.status === LinkStatus.LINK_MISSING) {
             imageNames.linkIsBroken.array.push( img.itemLink.name );
         } else if (img.space === 'CMYK') {
@@ -151,14 +150,6 @@ var processItem = function( item ) {
         } else {
             imagesToBeProcessed.push( img );
         }
-    }
-};
-
-util.forEach( app.selection, function ( sel ) {
-    if (util.isIn( sel.constructor.name, ["Group", "Rectangle", "Oval", "Polygon"] ) && sel.allPageItems) {
-        util.forEach( sel.allPageItems, processItem );
-    } else {
-        processItem( sel );
     }
 });
 
