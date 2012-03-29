@@ -31,7 +31,8 @@ var myDisplayDialog = function(columnCount) {
     var myPageNumberInput;
     var myFilenameInput;
     var myEmailInput;
-    var height;
+    var columnCount, height;
+    var myResult;
     
     myMainColumn = myDialog.dialogColumns.add().dialogRows.add().borderPanels.add().dialogColumns.add();
     myRows[0] = myMainColumn.dialogRows.add();
@@ -65,9 +66,18 @@ var myDisplayDialog = function(columnCount) {
           editUnits: MeasurementUnits.INCHES_DECIMAL,
           editValue: 0
     }); 
-        
-    var myResult = myDialog.show();
-    if (!myResult) exit();
+    
+    // Most of the min and max validation for columnCount and height are done
+    // by the API within the myDisplayDialog function, but we run this while loop
+    // in order to account for the cases when the height is zero or the columnCount is unfilled
+    // (or when the user pressed 'camcel').
+
+    do {
+        myResult = myDialog.show();
+        if (!myResult) exit();
+        columnCount = myColumnCountInput.editValue;
+        height = myHeightInput.editValue;
+    } while (!columnCount || !height);
     
     //        myDialog.destroy() cannot be used because of a bug in ID CS5
     //        on 64-bit machines. They totally crash. So we'll just
@@ -91,62 +101,51 @@ var myOldYUnits = myViewPreferences.verticalMeasurementUnits;
 myViewPreferences.horizontalMeasurementUnits = MeasurementUnits.points;
 myViewPreferences.verticalMeasurementUnits = MeasurementUnits.points;
 
-// Most of the min and max validation for columnCount and height are done
-// by the API within the myDisplayDialog function, but we run this while loop
-// in order to account for the cases when the height is zero or the columnCount is unfilled.
-
-var columns;
-do {
-    // columns will be undefined the first time.
-    myResult = myDisplayDialog(columns);
-    columns = myResult.columnCount;
-} while (!myResult.columnCount || !myResult.height);
-
-
 var myResult = myDisplayDialog();
-// columnCount has now been validated by the API, along with max value of height.
-// Still need to make sure height is not zero.
-
-
-// TODO: some error processing to take account of if the user has typed in zero height.
 
 // These values are in points.
 
 var width = (((PAGE_WIDTH + GUTTER_WIDTH) / MAX_COLUMNS) * myResult.columnCount) - GUTTER_WIDTH;
 var height = myResult.height;
 
-// Make the rectangle and the rule.
-
-// TODO: have top and left be calculated from the center of the window, 
-// minus half the width and half the height.
-
-// OR, alternatively, have it snap to a margin guide.
-
-// EVEN COOLER would be to have the user be able to place the ad with a little cursor like you can
-// place multiple pictures imported from Photoshop. Not sure that's going to work.
-
-var top = 100;
-var left = 100;
+// Set the coordinates so the recangle will be centered in the active page.
 
 var page = app.activeWindow.activePage;
+
+var pageBounds = page.bounds;
+var pageTop = pageBounds[0];
+var pageLeft = pageBounds[1];
+var pageBottom = pageBounds[2];
+var pageRight = pageBounds[3];
+
+var pageWidth = pageRight - pageLeft;
+var pageHeight = pageBottom - pageTop;
+
+var top = pageTop + (pageHeight / 2) - (height / 2);
+var left = pageLeft + (pageWidth / 2) - (width / 2);
+
+// Create the new rectangle and rule.
+
 var myNewAd = page.rectangles.add({
-    geometricBounds: [top, left, top + height, left + width]
-    
-    // TODO: add text wrap info.
-    // TODO: set background color and stroke width
-    
+    geometricBounds: [top, left, top + height, left + width],
+    fillColor: "None",
+    contentType: ContentType.GRAPHIC_TYPE,
+    textWrapPreferences: {
+        textWrapOffset: [10,0,0,0],
+        textWrapMode:  TextWrapModes.BOUNDING_BOX_TEXT_WRAP
+    }
 });
 var myNewRule = page.graphicLines.add({
-    // TODO: figure out how to indicate strokeColor: BLACK
-//    strokeColor: "[Black]",
+    strokeColor: "Black",
     strokeWeight: 0.5,
-    geometricBounds: [top -DISTANCE_OF_RULE_FROM_AD , left, top - DISTANCE_OF_RULE_FROM_AD, left + width ]
+    geometricBounds: [top - DISTANCE_OF_RULE_FROM_AD , left, top - DISTANCE_OF_RULE_FROM_AD, left + width ]
 });
 
 // Group them.
 
 var myNewGroup = page.groups.add([myNewAd, myNewRule]);
 myNewGroup.bringToFront();
+myNewGroup.select();
 
 // Restore ruler/measurement units.
 
