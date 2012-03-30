@@ -10,57 +10,115 @@
 
 var util = FORWARD.Util;
 
-var PAGE_HEIGHT = 1332; // points
-var PAGE_WIDTH = 828; // points
-var GUTTER_WIDTH = 10; // points
-var DISTANCE_OF_RULE_FROM_AD = 5; // points
-var MAX_COLUMNS = 6;
+var PAGE_HEIGHT = 1332, // points
+    PAGE_WIDTH = 828, // points
+    GUTTER_WIDTH = 10, // points
+    DISTANCE_OF_RULE_FROM_AD = 5, // points
+    MAX_COLUMNS = 6;
+
+var CUSTOM_SIZES = [{
+    name: 'full page -- 6 x 18.3"',
+    columnCount: 6,
+    inchHeight: 18.3 
+},
+{
+    name: '1/2 page horiz -- 6 x 9.1"',
+    columnCount: 6,
+    inchHeight: 9.1 
+},
+{
+    name: '1/2 page vert -- 3 x 18.3"',
+    columnCount: 3,
+    inchHeight: 18.3 
+},
+{
+    name: '1/4 page -- 3 x 9.1"',
+    columnCount: 3,
+    inchHeight: 9.1 
+},
+{
+    name: '1/8 page -- 3 x 4.5"',
+    columnCount: 3,
+    inchHeight: 4.5 
+}];
 
 // TODO: add some options for selecting common ad sizes.
 
-var myDisplayDialog = function(columnCount) {
+var myDisplayDialog = function() {
 
     var myDialog = app.dialogs.add({
         name: "Make ad"
     });
     
-    var myMainColumn;
-    var myColumns 
+    var myBigColumn;
+    var myBigRow;
+    var myInnerColumn;
+    var myColumns;
     var myRows = [];
-    var columnCountDialogProperties;
+    var myRow;
     var myPageNumberInput;
-    var myFilenameInput;
-    var myEmailInput;
+    var myColumnCountInput;
+    var myStandardSizesInput;
+    var mySize;
     var columnCount, height;
     var myResult;
     
-    myMainColumn = myDialog.dialogColumns.add().dialogRows.add().borderPanels.add().dialogColumns.add();
-    myRows[0] = myMainColumn.dialogRows.add();
-    myRows[1] = myMainColumn.dialogRows.add();
+    myBigColumn = myDialog.dialogColumns.add();
+
+    // FIRST PANEL
+    
+    myBigRow = myBigColumn.dialogRows.add();
+    myInnerColumn = myBigRow.borderPanels.add().dialogColumns.add();    
+    
+    // FIRST ROW OF FIRST PANEL
+    
+    // Input row for standard ad sizes.
+    myRow = myInnerColumn.dialogRows.add();
+    myRow.dialogColumns.add().staticTexts.add({
+        staticLabel: "Standard sizes:"
+    });
+    myStandardSizesInput = myRow.dialogColumns.add().dropdowns.add({
+          stringList: util.forEach(CUSTOM_SIZES, function(size) {
+              return(size.name);
+          })
+    }); 
+    
+    // INTERIM MESSAGE
+    
+    myBigRow = myBigColumn.dialogRows.add();
+    myInnerColumn = myBigRow.dialogColumns.add().staticTexts.add({
+        staticLabel: "If one of the sizes above has been selected, " +
+                     "the numbers below will be ignored."
+    });
+    
+    // SECOND PANEL
+    
+    myBigRow = myBigColumn.dialogRows.add();
+    myInnerColumn = myBigRow.borderPanels.add().dialogColumns.add();
+        
+    // FIRST ROW OF SECOND PANEL
     
     // Input row for column count of ad
-    myRows[0].dialogColumns.add().staticTexts.add({
+    myRow = myInnerColumn.dialogRows.add();
+    myRow.dialogColumns.add().staticTexts.add({
         staticLabel: "Number of columns:"
     });
-    columnCountDialogProperties = {
+    myColumnCountInput = myRow.dialogColumns.add().integerComboboxes.add({
           minWidth: 150,
           stringList: ['1', '2', '3', '4', '5', '6'],
-          minimumValue: 1,
-          maximumValue: MAX_COLUMNS
-    };
+          minimumValue: 0,
+          maximumValue: MAX_COLUMNS,
+          editValue: 0
+    }); 
     
-    // If we're running this function again because of an error,
-    // the columnCount will be supplied.
-    if (columnCount) {
-        columnCountDialogProperties.editValue = columnCount;
-    }
-    myColumnCountInput = myRows[0].dialogColumns.add().integerComboboxes.add(columnCountDialogProperties); 
+    // SECOND ROW OF SECOND PANEL
     
     // Input row for height of ad
-    myRows[1].dialogColumns.add().staticTexts.add({
+    myRow = myInnerColumn.dialogRows.add();
+    myRow.dialogColumns.add().staticTexts.add({
         staticLabel: "Height:"
     });
-    myHeightInput = myRows[1].dialogColumns.add().measurementEditboxes.add({
+    myHeightInput = myRow.dialogColumns.add().measurementEditboxes.add({
           minWidth: 300,
           maximumValue: PAGE_HEIGHT,
           editUnits: MeasurementUnits.INCHES_DECIMAL,
@@ -72,11 +130,23 @@ var myDisplayDialog = function(columnCount) {
     // in order to account for the cases when the height is zero or the columnCount is unfilled
     // (or when the user pressed 'camcel').
 
+
     do {
         myResult = myDialog.show();
         if (!myResult) exit();
-        columnCount = myColumnCountInput.editValue;
-        height = myHeightInput.editValue;
+        
+        // Check the standard sizes first.
+        var mySize = myStandardSizesInput.selectedIndex;
+        if (mySize !== -1) {
+            columnCount = CUSTOM_SIZES[mySize].columnCount;
+            height = CUSTOM_SIZES[mySize].inchHeight * 72; // 72 points per inch
+        } 
+        
+        // Now deal with the custom sizes.
+        else {
+            columnCount = myColumnCountInput.editValue;
+            height = myHeightInput.editValue;
+        }
     } while (!columnCount || !height);
     
     //        myDialog.destroy() cannot be used because of a bug in ID CS5
@@ -86,8 +156,6 @@ var myDisplayDialog = function(columnCount) {
     
     //        myDialog.destroy();
     
-    columnCount = myColumnCountInput.editValue;
-    height = myHeightInput.editValue;
     return {
         columnCount: columnCount,
         height: height
