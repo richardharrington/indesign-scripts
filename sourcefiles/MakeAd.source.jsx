@@ -14,6 +14,7 @@ var PAGE_HEIGHT = 1332, // points
     PAGE_WIDTH = 828, // points
     GUTTER_WIDTH = 10, // points
     DISTANCE_OF_RULE_FROM_AD = 5, // points
+    TEXTWRAP_OFFSET = 10, // points
     MAX_COLUMNS = 6;
 
 var CUSTOM_SIZES = [{
@@ -126,10 +127,9 @@ var myDisplayDialog = function() {
     }); 
     
     // Most of the min and max validation for columnCount and height are done
-    // by the API within the myDisplayDialog function, but we run this while loop
-    // in order to account for the cases when the height is zero or the columnCount is unfilled
+    // by the API of the dialog object, but we run this while loop in order to
+    // account for the cases when the height is zero or the columnCount is unfilled
     // (or when the user pressed 'camcel').
-
 
     do {
         myResult = myDialog.show();
@@ -195,14 +195,16 @@ var left = pageLeft + (pageWidth / 2) - (width / 2);
 // Create the new rectangle and rule.
 
 var myNewAd = page.rectangles.add({
-    geometricBounds: [top, left, top + height, left + width],
-    fillColor: "None",
-    contentType: ContentType.GRAPHIC_TYPE,
-    textWrapPreferences: {
-        textWrapOffset: [10,0,0,0],
-        textWrapMode:  TextWrapModes.BOUNDING_BOX_TEXT_WRAP
-    }
+    geometricBounds: [top, left, top + height, left + width]
+  , fillColor: "None"
+  , contentType: ContentType.GRAPHIC_TYPE
+  , textWrapPreferences: {textWrapMode: TextWrapModes.BOUNDING_BOX_TEXT_WRAP}
 });
+
+// This has to go after the intial BOUNDING_BOX_TEXT_WRAP
+// declaration in order to work.
+myNewAd.textWrapPreferences.textWrapOffset = [TEXTWRAP_OFFSET, 0, 0, 0];
+
 var myNewRule = page.graphicLines.add({
     strokeColor: "Black",
     strokeWeight: 0.5,
