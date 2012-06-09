@@ -16,8 +16,34 @@
     
     var util = FORWARD.Util;
     
-    // THE DATA
+    // THE MODEL
     
+    // Quick helper functions:
+    var selectionIsSomeKindOfTextObject = function() {
+        // Make sure selection exists and is some kind of text object (or only one text frame).       
+        if ((app.documents.length === 0) || (app.selection.length === 0) || (app.selection.length > 1)) {
+            return false;
+        }
+        
+        if (!util.selectionIs( "Character", "Word", "TextStyleRange", "Line",
+                               "Paragraph", "TextColumn", "Text", "Cell",
+                               "Column", "Row", "Table", "InsertionPoint", "TextFrame" )) {
+            return false;
+        }
+        
+        return true;
+    };
+    
+    var selectionAvailableToEdit = function() {
+        // Parent story of selection must be checked out or unmanaged.
+        var parentStory = app.selection[0].parentStory;
+        if (parentStory.lockState === LockStateValues.CHECKED_IN_STORY || parentStory.lockState === LockStateValues.LOCKED_STORY) {
+            return false;
+        }
+        return true;
+    };
+    
+    // The actual model:
     var ourMenuItems = [
     
         {
@@ -35,9 +61,7 @@
             title: "Export To Markdown",
             menuID: "$ID/&File",
             separatorAbove: true,
-            enabledTest: function() {
-                return (app.documents.length > 0) && (app.selection.length > 0);
-            }
+            enabledTest: selectionIsSomeKindOfTextObject
         },
         
         {
@@ -47,28 +71,13 @@
             separatorAbove: true,
             enabledTest: function() {
                 
-                // Make sure selection exists and is some kind of text object.       
-    
-                if ((app.documents.length === 0) || (app.selection.length === 0)) {
+                if (!selectionIsSomeKindOfTextObject() || !selectionAvailableToEdit() || util.selectionIs( "TextFrame")) {
                     return false;
                 }
                 
-                if (!util.selectionIs( "Character", "Word", "TextStyleRange", "Line",
-                                       "Paragraph", "TextColumn", "Text", "Cell",
-                                       "Column", "Row", "Table", "InsertionPoint" )) {
-                    return false;
-                }
-                
-                // Parent story of selection must be checked out or unmanaged.
-               
-                var parentStory = app.selection[0].parentStory;
-                if (parentStory.lockState === LockStateValues.CHECKED_IN_STORY || parentStory.lockState === LockStateValues.LOCKED_STORY) {
-                    return false;
-                }
-      
                 // return false (not enabled) if the selection is an insertion point and 
-                // we're not editing one and only one existing hyperlink,
-                // otherwise return true.
+                // we're not editing one and only one existing hyperlink.
+                // Otherwise return true.
       
                 var foundHyperlinks = util.findHyperlinks( app.selection[0] );
         
@@ -96,31 +105,47 @@
             separatorAbove: false,
             enabledTest: function() {
 
-                // Make sure selection exists and is some kind of text object.       
-    
-                if ((app.documents.length === 0) || (app.selection.length === 0)) {
+                if (!selectionIsSomeKindOfTextObject() || !selectionAvailableToEdit() || util.selectionIs( "TextFrame" )) {
                     return false;
                 }
                 
-                if (!util.selectionIs( "Character", "Word", "TextStyleRange", "Line",
-                                       "Paragraph", "TextColumn", "Text", "Cell",
-                                       "Column", "Row", "Table", "InsertionPoint" )) {
-                    return false;
-                }
-                
-                // Parent story of selection must be checked out or unmanaged.
-               
-                var parentStory = app.selection[0].parentStory;
-                if (parentStory.lockState === LockStateValues.CHECKED_IN_STORY || parentStory.lockState === LockStateValues.LOCKED_STORY) {
-                    return false;
-                }
-      
                 // Make sure we have selected at least one hyperlink.
             
                 var foundHyperlinks = util.findHyperlinks( app.selection[0] );
                 return foundHyperlinks && (foundHyperlinks.length > 0);
             }
-        }
+        }, 
+        
+        {
+            scriptFile: File (app.activeScript.parent.parent.parent + "/ShowWebOnlyText.jsx"),
+            title: "Show Web-only Text",
+            menuID: "$ID/&Edit",
+            separatorAbove: true,
+            enabledTest: function() {
+
+                if (!selectionIsSomeKindOfTextObject() || !selectionAvailableToEdit()) {
+                    return false;
+                }
+                
+                return true;
+            }
+        },
+        
+        {
+            scriptFile: File (app.activeScript.parent.parent.parent + "/HideWebOnlyText.jsx"),
+            title: "Hide Web-only Text",
+            menuID: "$ID/&Edit",
+            separatorAbove: false,
+            enabledTest: function() {
+
+                if (!selectionIsSomeKindOfTextObject() || !selectionAvailableToEdit()) {
+                    return false;
+                }
+                
+                return true;
+            }
+        },
+        
     ];
     
     // THE FUNCTIONS
