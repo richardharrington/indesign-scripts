@@ -164,7 +164,7 @@ if (!FORWARD.Util) {
             // (This includes an extremely ugly hack because we don't know how to do
             // case-insensitive grep searches on indesign text objects).
 
-            app.findGrepPreferences.findWhat = "^\\s*[Ww][Ee][Bb]\\s*\\-?\\s*[Oo][Nn][Ll][Yy]\\s*\\:?\\s*$";
+            app.findGrepPreferences.findWhat = "^\\W*[Ww][Ee][Bb]\\W*[Oo][Nn][Ll][Yy]\\W*$";
             myResults = story.findGrep();
             if (myResults && myResults.length > 0) {
                 var webOnlyIndex = myResults[0].index; // gets index in parent story
@@ -305,8 +305,15 @@ if (!FORWARD.Util) {
             util.myFindGrep(myObject, {findWhat: "[‘’]"}, {changeTo: "'"}, undefined);
         };
         
+        // getParagraphStyleByName and getCharacterStyleByName will find character
+        // and paragraph styles in nested groups of styles, which the regular
+        // search will not do. This should be used in documents where you know that
+        // you want to find the style wherever it is, and you also know that you don't
+        // have multiple styles with the same names in different groups.
         
-        util.iterateThroughParagraphStyles = function iterate( parent, func ) {
+        // (This is basically two sets of functions that are almost identical, but there's only two.)
+        
+        var iterateThroughParagraphStyles = function iterate( parent, func ) {
             util.forEach( parent.paragraphStyles, function( style ) {
                 func( style );
             });
@@ -318,11 +325,37 @@ if (!FORWARD.Util) {
         util.getParagraphStyleByName = function( doc, name ) {
             var results = [];
             var style;
-            util.iterateThroughParagraphStyles( doc, function( style ) {
+            iterateThroughParagraphStyles( doc, function( style ) {
                 if (style.name === name) {
                     results.push( style );
                 }
             });
+            if (results.length === 0) {
+                throw new Error("No paragraph style by that name in this document");
+            }
+            return results;
+        }
+        
+        var iterateThroughCharacterStyles = function iterate( parent, func ) {
+            util.forEach( parent.characterStyles, function( style ) {
+                func( style );
+            });
+            util.forEach( parent.characterStyleGroups, function( group ) {
+                iterate( group, func );
+            });
+        };
+
+        util.getCharacterStyleByName = function( doc, name ) {
+            var results = [];
+            var style;
+            iterateThroughCharacterStyles( doc, function( style ) {
+                if (style.name === name) {
+                    results.push( style );
+                }
+            });
+            if (results.length === 0) {
+                throw new Error("No character style by that name in this document");
+            }
             return results;
         }
         
