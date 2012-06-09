@@ -357,6 +357,32 @@ if (!FORWARD.Util) {
             if (dest && !destHidden) 
                 dest.remove();
         };
+        
+        // removes all orphaned hyperlink text sources in a document.
+        
+        util.removeOrphanHyperlinkTextSources = function( doc ) {
+            var textSources = doc.hyperlinkTextSources;
+            var hyperlinks = doc.hyperlinks;
+            
+            // killThem is a boolean array which tells whether to snuff
+            // each textSource
+            var killThem = util.forEach(textSources, function(textSource) {
+                var isOrphan = true;
+                util.forEach(hyperlinks, function(hyperlink) {
+                    if (hyperlink.source === textSource) {
+                        isOrphan = false;
+                    }
+                });
+                return isOrphan;
+            });
+            
+            // Go down from the end to kill them.
+            for (var i = textSources.length - 1; i >= 0; i--) {
+                if (killThem[i]) {
+                    textSources[i].remove();
+                }
+            }
+        }
 
         
 

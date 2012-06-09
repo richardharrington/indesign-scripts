@@ -122,6 +122,11 @@ FORWARD.markdownToIndesign = FORWARD.markdownToIndesign || (function() {
             default:
             myDoc = textObj.parentStory.parent;
         }
+        
+        //Get rid of orphan hyperlink text sources that have started cropping
+        //up after importing documents from Word.
+        
+        util.removeOrphanHyperlinkTextSources( myDoc );
           
         app.changeGrepPreferences = NothingEnum.nothing;
         app.findGrepPreferences = NothingEnum.nothing;
