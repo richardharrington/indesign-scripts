@@ -146,6 +146,37 @@ if (!FORWARD.Util) {
         util.add_leading_zeros = util.addLeadingZeroes; // Delete this after we replace all the old references.
         
             
+        util.hideWebOnlyText = function(story) {
+            app.changeGrepPreferences = NothingEnum.nothing;
+            app.findGrepPreferences = NothingEnum.nothing;
+            app.findChangeGrepOptions.properties = {
+                includeFootnotes: true,
+                includeMasterPages: true,
+                includeHiddenLayers: true,
+                wholeWord: false
+            };
+
+
+            // Hide web-only content at end of story in a label 
+            // (signalled by the words "web only" on their own line, 
+            // with optional intermediate hyphen and following colon)
+
+            // (This includes an extremely ugly hack because we don't know how to do
+            // case-insensitive grep searches on indesign text objects).
+
+            app.findGrepPreferences.findWhat = "^\\s*[Ww][Ee][Bb]\\s*\\-?\\s*[Oo][Nn][Ll][Yy]\\s*\\:?\\s*$";
+            myResults = story.findGrep();
+            if (myResults && myResults.length > 0) {
+                var webOnlyIndex = myResults[0].index; // gets index in parent story
+                myResults[0].remove(); // removes the words "web only"
+                var webOnlyText = story.characters.itemByRange(webOnlyIndex, -1);
+                story.label = webOnlyText.contents.toString();
+                webOnlyText.remove();
+                return true;
+            }
+            return false;
+        };
+
         util.myFindText = function(myObject, myFindPreferences, myChangePreferences, myFindChangeOptions) {
             //Reset the find/change preferences before each search.
             app.changeTextPreferences = NothingEnum.nothing;
