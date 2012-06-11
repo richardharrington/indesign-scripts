@@ -145,45 +145,6 @@ if (!FORWARD.Util) {
         };
         util.add_leading_zeros = util.addLeadingZeroes; // Delete this after we replace all the old references.
         
-            
-        util.copyWebOnlyTextToLabel = function(story, deleteText) {
-            // deleteText is a boolean parameter, defaults to false
-            var deleteText = deleteText || false;
-            
-            app.changeGrepPreferences = NothingEnum.nothing;
-            app.findGrepPreferences = NothingEnum.nothing;
-            app.findChangeGrepOptions.properties = {
-                includeFootnotes: true,
-                includeMasterPages: true,
-                includeHiddenLayers: true,
-                wholeWord: false
-            };
-
-            // Hide web-only content at end of story in a label 
-            // (signalled by the words "web only" on their own line, 
-            // with optional intermediate hyphen and following colon)
-
-            // (This includes an extremely ugly hack because we don't know how to do
-            // case-insensitive grep searches on indesign text objects).
-
-            app.findGrepPreferences.findWhat = "^\\W*[Ww][Ee][Bb]\\W*[Oo][Nn][Ll][Yy]\\W*$";
-            myResults = story.findGrep();
-            if (myResults && myResults.length > 0) {
-                
-                var webOnlyMarker = myResults[0];
-                
-                // Get text from the end of the web-only marker to the end of the story.
-                var actualWebOnlyText = story.characters.itemByRange(webOnlyMarker.index + webOnlyMarker.length, -1);
-                story.label = actualWebOnlyText.contents.toString();
-                if (deleteText) {
-                    actualWebOnlyText.remove();
-                    webOnlyMarker.remove();
-                }
-                return story.label;
-            }
-            return null;
-        };
-
         util.webOnlyText = function(story, deleteText) {
             // deleteText is a boolean parameter, defaults to false
             var deleteText = deleteText || false;
