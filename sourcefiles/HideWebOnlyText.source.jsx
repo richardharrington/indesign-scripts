@@ -52,12 +52,19 @@
     // AND NOW, THE MEAT OF THIS SCRIPT (THAT OTHER STUFF SHOULD BE IN A LIBRARY.)
 
     // Hide web-only content at end of story. If there's not any, inform the user.
-    var successfullyHidText = util.hideWebOnlyText(myStory);
-
-    if (!successfullyHidText) {
+    var webOnlyTextStr = util.webOnlyText(myStory, true); // true means erase text object from the story.
+    if (webOnlyTextStr && webOnlyTextStr.match(/\S/)) {
+        if (myStory.label) {
+            alert("There's already some hidden web-only text, so we're going to add " +
+                  "the text that's at the end of the story now to what's already there, " +
+                  "stored in the secret place. To see it all, go to 'Show Web-only Text' in the Edit menu.");
+            myStory.label += '\r\r';
+        }
+        myStory.label += webOnlyTextStr;
+    } else {
         error_exit ("In order to hide web-only text, you need to first type in the words " +
                     "'web only' on their own line at the end of the story, then put all your " +
-                    "web-only text after that, then run this script again." );    
+                    "web-only text after that, then run this script again." );            
     }
 
     function error_exit (message) {
