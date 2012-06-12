@@ -8,7 +8,7 @@ var EDITORIAL_PAGE_FILE_NAME_ROOT = "Editorial";
 var ICML_FOLDER_SUFFIX = " icml";
 var NOTIFICATION_NAME = "Jane Eisner";
 var NOTIFICATION_EMAIL = "eisner@forward.com";
-var TECH_SUPPORT_CONTACT = "Richard";
+var TECH_SUPPORT_CONTACT = "Elaine";
 var COLLOQUIAL_NAME_OF_THIS_WEEKS_ISSUE_FOLDER = "CURRENT LAYOUTS";
 var PUBLICATION_DAY = "Friday";
 var WEEKS_IN_THE_FUTURE = 1;
@@ -136,7 +136,7 @@ function main() {
       var myStory = mySpread.textFrames[j].parentStory;
       myStoryIndex++;
       if (myStory.lockState == LockStateValues.NONE) {
-      myStory.exportFile (ExportFormat.INCOPY_MARKUP, new File ( myIcmlFolder.fsName 
+        myStory.exportFile (ExportFormat.INCOPY_MARKUP, new File ( myIcmlFolder.fsName 
                                                                  + "/"
                                                                  + myIcmlFileNameRoot 
                                                                  + "_"
