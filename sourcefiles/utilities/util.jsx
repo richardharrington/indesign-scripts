@@ -449,7 +449,10 @@ if (!FORWARD.Util) {
             // Go down from the end to kill them.
             for (var i = textSources.length - 1; i >= 0; i--) {
                 if (killThem[i]) {
-                    textSources[i].remove();
+                    // Cheap hack to avoid checking for checked-out stories:
+                    try {
+                        textSources[i].remove();
+                    } catch(e) {}
                 }
             }
         }
