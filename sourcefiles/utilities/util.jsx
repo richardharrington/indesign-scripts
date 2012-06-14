@@ -392,7 +392,7 @@ if (!FORWARD.Util) {
             if (destHidden !== newDestHidden) {
                 dest.remove();
                 dest = doc.hyperlinkURLDestinations.add( 
-                        destURL, {name: destName || Math.random().toString(), hidden: newDestHidden} );
+                        destURL, {name: (destName ? destName : '') +  Math.random().toString(), hidden: newDestHidden} );
                 link.destination = dest;
             }
         };
