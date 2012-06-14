@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 // A quick and dirty version of ProcessText.source.jsx which 
 // has everything removed except the conversion of markdown to Indesign.
 

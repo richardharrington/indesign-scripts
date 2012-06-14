@@ -1,3 +1,6 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
 // This script associates a URL with a story in InDesign or 
 // InCopy via the insertLabel method, which then allows the script 
 // EditOnWeb to open a web browser to that URL.

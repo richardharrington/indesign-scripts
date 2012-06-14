@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 // namespacing is done in two ways here:
 
 // 1. newly written functions are added to the FORWARD.Util namespace.

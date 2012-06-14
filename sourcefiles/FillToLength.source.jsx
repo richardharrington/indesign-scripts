@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 // CONFIG
 
 var COPYFIT_TEXT_FILE_PATH = "/Volumes/English/PRODUCTION FILES/MASTER FOLDER/COPYFIT diff lengths longer/8000 copyfit";

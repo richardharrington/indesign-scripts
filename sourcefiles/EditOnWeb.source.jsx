@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 // This script depends upon the user having previously run
 // the AddURLToStory script on a story. This script finds that
 // URL (via the extractLabel method) and opens a browser to that page.

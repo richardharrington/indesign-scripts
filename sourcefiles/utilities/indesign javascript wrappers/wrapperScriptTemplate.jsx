@@ -1,3 +1,9 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+// (Some of the scripts will later change this back to version 6.0).
+
+
 // This script calls a sourcefile to run the another script, based on whatever name
 // this file has.
 
@@ -22,5 +28,15 @@
 	                               SOURCEFILE_EXTENSION + 
 	                               ".jsx");
 	
-	app.doScript (myScriptSourcefile, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, myScriptName);	
-	function getActiveScript() {	    try {	        var myScript = app.activeScript;	    } catch(e) {	        // we are running from the ESTK	        var myScript = File(e.fileName);	    }	    return myScript;	}})();  
+	app.doScript (myScriptSourcefile, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT, myScriptName);
+	
+	function getActiveScript() {
+	    try {
+	        var myScript = app.activeScript;
+	    } catch(e) {
+	        // we are running from the ESTK
+	        var myScript = File(e.fileName);
+	    }
+	    return myScript;
+	}
+})();  

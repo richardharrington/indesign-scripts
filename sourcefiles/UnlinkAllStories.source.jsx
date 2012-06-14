@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 /* This script asks the user for a folder
    and unlinks all the stories in all the InDesign
    documents in that folder from their InCopy source files.

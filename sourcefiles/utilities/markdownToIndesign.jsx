@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 // This module needs the module FORWARD.Util contained in the file util.jsx.
 // Scripts that #include this one should #include that one first.
 // Some day I'm going to figure out if we can do conditional 

@@ -1,3 +1,7 @@
+// Set to 7.0 scripting object model (Indesign CS5)
+app.scriptPreferences.version = 7.0;
+
+
 // This script is designed to be run in InCopy only.  I will make a more generalized version of it soon.
 
 
